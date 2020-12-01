@@ -1,0 +1,29 @@
+{{>header.hbs}}
+<p>
+    List
+</p>
+<p>
+<table>
+
+    {{#personList.person}}
+        <tr>
+            <td>{{id}} </td>
+            <td> {{fname}}</td>
+            <td> {{lname}}</td>
+            <td><a href="/edit?id={{id}}">edit</a></td>
+            <td><a href="/delete?id={{id}}">delete</a></td>
+            <td><a href="/singlePerson?id={{id}}">get data</a></td>
+        </tr>
+    {{/personList.person}}
+
+</table>
+
+</p>
+<p>
+    <a href="/new">new</a>
+</p>
+<p>
+    <a href="/all">all data</a>
+</p>
+
+{{>footer.hbs}}
