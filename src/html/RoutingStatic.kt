@@ -12,6 +12,8 @@ fun Routing.staticRouting() {
         static("/") {
             files("css")
             files("js")
+            default("index.html")
+
         }
     }
 }

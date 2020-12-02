@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Table</title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
 <h1>Table</h1>
@@ -13,12 +14,12 @@
 
 
 </div>
-<script	src="js/utils.js"></script>
-<script	src="js/pbtable.js"></script>
-<script	src="js/start.js"></script>
+<script	src="utils.js"></script>
+<script	src="dataGrid.js"></script>
+<script	src="start.js"></script>
 <script>
     let container = document.getElementById("table")
-    document.addEventListener("DOMContentLoaded",start(container,3,4,tableData));
+    document.addEventListener("DOMContentLoaded",start(container,3,4,getRowData));
 </script>
 </body>
 </html>

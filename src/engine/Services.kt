@@ -14,7 +14,6 @@ fun newPersonData(data: MutableMap<String, String>): Person {
     return person
 }
 
-
 fun personData(data: MutableMap<String, String>): Person {
 
     val lname = data.get("lname").toString()
@@ -26,7 +25,8 @@ fun personData(data: MutableMap<String, String>): Person {
     if (id != null) {
         person = Person(id, fname, lname)
         updatePerson(person)
-    } else {
+    }
+    else {
         person = Person(0, "", "")
     }
     return person

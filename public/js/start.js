@@ -1,4 +1,4 @@
-var headerData = {
+var headerDefinition = {
     "headerCells": [
         {
             "cellClass": "w3-right-align",
@@ -14,7 +14,7 @@ var headerData = {
         }
     ]
 }
-var rowData = {
+var rowDefinition = {
     "fields": [
         {
             "fieldClass": "w3-right-align",
@@ -58,16 +58,13 @@ var tableData = {
     ]
 }
 
-function start(element, colCount, rowcount, tableData) {
 
-    this.tableData = tableData;
 
-    function getData(i, name) {
-        return this.tableData.personList[i][name];
-    }
+function getRowData(i) {
+    return tableData.personList[i];
+}
 
-    let container = document.getElementById("table");
+function start(container, colCount, rowcount, getRowData) {
 
-    let table = dataGrid(container, "w3-table w3-striped", "dataGrid", headerData, "w3-center", rowData, "w3-center", 4, getData);
-
+    let table = dataGrid(container, "w3-table w3-striped", "dataGrid", headerDefinition, rowDefinition, "w3-center", 4, getRowData);
 }
