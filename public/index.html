@@ -11,15 +11,15 @@
 <div id="table" class="ws-container">
 
 
-
-
 </div>
-<script	src="utils.js"></script>
-<script	src="dataGrid.js"></script>
-<script	src="start.js"></script>
+<script src="utils.js"></script>
+<script src="dataGrid.js"></script>
+<script src="start.js"></script>
+<script src="dataSource.js"></script>
 <script>
     let container = document.getElementById("table")
-    document.addEventListener("DOMContentLoaded",start(container,3,4,getRowData));
+    let dataSourceConfig = new DataSourceConfig("http://localhost:8080/all");
+    document.addEventListener("DOMContentLoaded", start(container, 4, dataSourceConfig));
 </script>
 </body>
 </html>

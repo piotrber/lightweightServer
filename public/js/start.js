@@ -14,7 +14,9 @@ var headerDefinition = {
         }
     ]
 }
+
 var rowDefinition = {
+    "rowClassName": "w3-center",
     "fields": [
         {
             "fieldClass": "w3-right-align",
@@ -31,40 +33,10 @@ var rowDefinition = {
     ]
 }
 
-// mock data
+function start(container, colCount, rowcount, dataSourceConfig) {
 
-var tableData = {
-    "personList": [
-        {
-            "id": 14,
-            "fname": "Jan ",
-            "lname": "Kowalski"
-        },
-        {
-            "id": 15,
-            "fname": "Joe",
-            "lname": "Biden"
-        },
-        {
-            "id": 16,
-            "fname": "Czesław",
-            "lname": "Niemen"
-        },
-        {
-            "id": 17,
-            "fname": "Anna",
-            "lname": "German"
-        }
-    ]
-}
+    var grid = new DataGrid(container, "w3-table w3-striped", "dataGrid", headerDefinition, rowDefinition, 7);
+    let dataSource = new DataSource(dataSourceConfig,grid);
 
 
-
-function getRowData(i) {
-    return tableData.personList[i];
-}
-
-function start(container, colCount, rowcount, getRowData) {
-
-    let table = dataGrid(container, "w3-table w3-striped", "dataGrid", headerDefinition, rowDefinition, "w3-center", 4, getRowData);
 }
