@@ -1,32 +1,25 @@
-class DataSourceConfig {
-
-    getAllUri;
-    getNextUri;
-    getPrevUri;
-    insertUri;
-    updateUri;
-    deleteUri;
-    sortByColumnName;
-
-    constructor(getAllUri, getNextUri, getPrevUri, insertUri, updateUri, deleteUri, sortByColumnName) {
-        this.getAllUri = getAllUri;
-        this.getNextUri = getNextUri;
-        this.getPrevUri = getPrevUri;
-        this.insertUri = insertUri;
-        this.updateUri = updateUri;
-        this.deleteUri = deleteUri;
-        this.sortByColumnName = sortByColumnName;
-    }
-}
-
 class DataGrid {
 
     tableHeader;
     tableBody;
     dataSourceConfig;
     dataSource;
+    result;
+    form;
+
+    onEnter() {
+        let form = document.getElementById("form");
+        let container = document.getElementById("table");
+        form.style.display = "block";
+        form.width = container.width;
+        form.height = container.height;
+        form.top = "0px"
+
+    }
+
 
     dataGridHeader() {
+        this.tableHeader.className = headerDefinition.headerClass;
         let header = headerDefinition.headerCells;
         var i;
         for (i = 0; i < header.length; i++) {
@@ -37,25 +30,47 @@ class DataGrid {
         }
     }
 
+    editForm() {
+
+        this.form = document.createElement("div");
+        this.form.className = this.headerDefinition.formClassName;
+        this.container.appendChild(this.form);
+        this.form.style.display = "none";
+        this.form.id = "form";
+        let header = headerDefinition.headerCells;
+        var i;
+        for (i = 0; i < header.length; i++) {
+            if (header[i].inputType != "hidden") {
+                let label = document.createElement("label")
+                label.innerHTML = header[i].label;
+                this.form.appendChild(label);
+                let input = document.createElement("input");
+                input.type = header[i].inputType;
+                this.form.appendChild(input);
+            }
+        }
+    }
+
+
     dataGridRow(rowNumber, rowData) {
 
         let fields = rowDefinition.fields;
         let rowClass = rowDefinition.rowClassName;
 
-        let id = rowClass + rowNumber
         let tr = document.createElement("tr");
         tr.className = rowClass;
-        tr.id = id;
+        tr.data = rowData;
         this.tableBody.appendChild(tr);
         var i;
         for (i = 0; i < fields.length; i++) {
             let td = document.createElement("td");
-            td.id = genId(i, rowNumber);
             td.innerHTML = rowData[fields[i].name];
-            td.className = fields[i].className
+            td.className = fields[i].fieldClass;
+            td.addEventListener("click", this.onEnter);
             tr.appendChild(td)
         }
     }
+
 
     constructor(container, className, name, headerDefinition, rowDefinition, rowCount) {
 
@@ -65,6 +80,9 @@ class DataGrid {
         this.rowDefinition = rowDefinition;
         this.rowCount = rowCount;
         this.name = name;
+
+        this.container.style.maxHeight = "360px"
+        this.container.style.overflow = "auto"
 
         let colCount = this.headerDefinition.headerCells.length;
         let table = document.createElement("table");
@@ -78,6 +96,9 @@ class DataGrid {
         this.dataGridHeader();
         this.tableBody = document.createElement("tbody");
         table.appendChild(this.tableBody)
+
+        this.result = document.getElementById("result");
+        this.editForm();
     }
 
     build() {

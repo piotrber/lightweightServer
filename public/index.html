@@ -4,22 +4,50 @@
     <meta charset="UTF-8">
     <title>Table</title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-teal.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
-<body>
-<h1>Table</h1>
-<div id="table" class="ws-container">
-
-
+<body class="w3-theme-l5">
+<div class="w3-row">
+    <div class="w3-col m2 w3-center w3-theme-l1"><br>menu<br><br></div>
+    <div class="w3-col m8 w3-center w3-theme ">
+        <h1>Table</h1>
+    </div>
+    <div class="w3-col m2 w3-center w3-theme-l1"><br><br>logo<br></div>
 </div>
-<script src="utils.js"></script>
-<script src="dataGrid.js"></script>
+<div class="w3-row">
+    <div class="w3-col m6 w3-center w3-theme-l3">
+        <div class="w3-bar">
+        <button class="w3-bar-item w3-button" onclick="">First</button>
+        <button class="w3-bar-item w3-button" onclick="">Second</button>
+        <button class="w3-bar-item w3-button" onclick="">Third</button>
+        </div>
+
+    </div>
+    <div class="w3-col m6 w3-center w3-theme-l4"><br>info</div>
+</div>
+<div class="w3-row">
+    <div class="w3-col m2 w3-center w3-theme-l1">left</div>
+    <div class="w3-col m8 w3-center w3-theme-l5" >
+        <div id="table">
+
+        </div>
+    </div>
+    <div class="w3-col m2 w3-center w3-theme-l1" id="result">right</div>
+</div>
+<div class="w3-row">
+    <div class="w3-col m6 w3-center w3-theme-l3"><br>footer left<br></div>
+    <div class="w3-col m6 w3-center w3-theme-l4"><br>footer right<br></div>
+</div>
+
+<script src="DataSourceConfig.js"></script>
+<script src="DataGrid.js"></script>
 <script src="start.js"></script>
-<script src="dataSource.js"></script>
+<script src="DataSource.js"></script>
 <script>
     let container = document.getElementById("table")
     let dataSourceConfig = new DataSourceConfig("http://localhost:8080/all");
-    document.addEventListener("DOMContentLoaded", start(container, 4, dataSourceConfig));
+    document.addEventListener("DOMContentLoaded", start(container, 10, dataSourceConfig));
 </script>
 </body>
 </html>

@@ -47,11 +47,9 @@ class DataSource {
         return this.tableData.personList[i];
     }
 
-
     getRow(id) {
         return this.loadRowData(id, this.getUri)
     }
-
 
     getPrevRow(value) {
 
