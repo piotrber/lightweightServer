@@ -2,21 +2,23 @@ class DataSource {
 
     grid;
     dataSourceConfig;
-    getAllUri;
+    getAllUrl;
+    updateUrl;
 
     constructor(dataSourceConfig, grid) {
 
         this.grid = grid;
         this.grid.dataSource = this;
         this.dataSourceConfig = dataSourceConfig;
-        this.getAllUri = dataSourceConfig.getAllUri;
+        this.getAllUrl = dataSourceConfig.getAllUrl;
+        this.updateUrl = dataSourceConfig.updateUrl;
 
-        // this.getUri = getUri;
-        // this.getNextUri = getNextUri;
-        // this.getPrevUri = getPrevUri;
-        // this.insertPath = insertUri;
-        // this.updateUri = updateUri;
-        // this.deleteUri = deleteUri;
+        // this.getUrl = getUrl;
+        // this.getNextUrl = getNextUrl;
+        // this.getPrevUrl = getPrevUrl;
+        // this.insertPath = insertUrl;
+
+        // this.deleteUrl = deleteUrl;
         // this.sortByColumnName = sortByColumnName;
 
         this.loadAll();
@@ -37,10 +39,20 @@ class DataSource {
     loadAll() {
         $.when(
             $.ajax({
-                    url: this.getAllUri,
+                    url: this.getAllUrl,
                     context: this
                 }
             )).then(this.start);
+    }
+
+    updateRowData(rowData) {
+        $.ajax({
+            url:this.updateUrl,
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(rowData),
+            error: this.checkStatus
+        });
     }
 
     getRowData(i) {
@@ -48,12 +60,12 @@ class DataSource {
     }
 
     getRow(id) {
-        return this.loadRowData(id, this.getUri)
+        return this.loadRowData(id, this.getUrl)
     }
 
     getPrevRow(value) {
 
-        let data = this.loadRowData(value, this.getPrevUri)
+        let data = this.loadRowData(value, this.getPrevUrl)
         if (data[this.sortByColumnName] < this.minValue) {
             this.minValue = data[this.sortByColumnName]
         }
@@ -61,7 +73,7 @@ class DataSource {
 
     getNextRow(value) {
 
-        let data = this.loadRowData(value, this.getNextUri)
+        let data = this.loadRowData(value, this.getNextUrl)
         if (data[this.sortByColumnName] > this.maxValue) {
             this.maxValue = data[this.sortByColumnName]
         }
@@ -69,7 +81,7 @@ class DataSource {
     }
 
 
-    loadRowData(value, getUri) {
+    loadRowData(value, getUrl) {
         var dataObject;
 
         recive(data, status)
@@ -82,9 +94,15 @@ class DataSource {
 
         getObject(value)
         {
-            $.get(getUri + "?" + value + "&" + this.sortByColumnName, recive)
+            $.get(getUrl + "?" + value + "&" + this.sortByColumnName, recive)
         }
         return dataObject;
     }
+
+
+    checkStatus(data, status) {
+        alert("Data: " + data + "\nStatus: " + status);
+    }
+
 
 }

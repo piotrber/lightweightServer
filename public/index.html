@@ -42,8 +42,10 @@
 <script src="DataSource.js"></script>
 <script>
     let container = document.getElementById("table")
-    let dataSourceConfig = new DataSourceConfig("http://localhost:8080/all");
-    document.addEventListener("DOMContentLoaded", start(container, 10, dataSourceConfig));
+    var dataSourceConfig;
+    var dataSource;
+    var grid;
+    document.addEventListener("DOMContentLoaded", start(container));
 </script>
 </body>
 </html>

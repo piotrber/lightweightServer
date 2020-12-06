@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import pl.pjpsoft.data.getSinglePerson
 import pl.pjpsoft.data.personDataList
+import pl.pjpsoft.data.updatePerson
 import pl.pjpsoft.model.Person
 
 
@@ -49,10 +50,11 @@ fun Routing.getAllPersonData() {
 
 fun Routing.savePersonData() {
 
-    post("/savedata") {
+    post("/updatePerson") {
         val person = withContext(Dispatchers.IO) {
             call.receive<Person>()
         }
+        updatePerson(person)
         call.respond(HttpStatusCode.OK)
     }
 }
