@@ -4,6 +4,9 @@ class DataSource {
     dataSourceConfig;
     getAllUrl;
     updateUrl;
+    tableName;
+    minIndex = 0;
+    maxIndex = 0;
 
     constructor(dataSourceConfig, grid) {
 
@@ -12,7 +15,7 @@ class DataSource {
         this.dataSourceConfig = dataSourceConfig;
         this.getAllUrl = dataSourceConfig.getAllUrl;
         this.updateUrl = dataSourceConfig.updateUrl;
-
+        this.tableName = dataSourceConfig.tableName;
         // this.getUrl = getUrl;
         // this.getNextUrl = getNextUrl;
         // this.getPrevUrl = getPrevUrl;
@@ -31,7 +34,7 @@ class DataSource {
 
 
     start(data) {
-        this.tableData = data;
+        this.tableData = data[this.tableName];
         this.grid.build();
     }
 
@@ -47,7 +50,7 @@ class DataSource {
 
     updateRowData(rowData) {
         $.ajax({
-            url:this.updateUrl,
+            url: this.updateUrl,
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify(rowData),
@@ -56,7 +59,14 @@ class DataSource {
     }
 
     getRowData(i) {
-        return this.tableData.personList[i];
+        if (i > this.maxIndex) {
+            this.maxIndex = i
+        }
+        if (i<this.tableData.length){
+            return this.tableData[i];
+        } else {
+            return null;
+        }
     }
 
     getRow(id) {

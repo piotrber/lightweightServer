@@ -34,7 +34,7 @@ var tableDefinition = {
 }
 
 function start(container) {
-    dataSourceConfig = new DataSourceConfig("http://localhost:8080/", "all", "updatePerson");
+    dataSourceConfig = new DataSourceConfig("personList","http://localhost:8080/", "all", "updatePerson");
     grid = new DataGrid(container, "w3-table-all w3-hoverable", "dataGrid", tableDefinition);
     dataSource = new DataSource(dataSourceConfig, grid);
 }

@@ -1,3 +1,16 @@
+class DataGridConfig {
+    dataSource;
+    tableDiv;
+    formDiv;
+    lastTop;
+
+    constructor(tablediv, formDiv) {
+        this.formDiv = formDiv;
+        this.tableDiv = tablediv;
+    }
+}
+
+
 class DataGrid {
 
     eTableHeader;
@@ -6,32 +19,53 @@ class DataGrid {
     dataSource;
     eForm;
     eContainer;
-    topOfGrid;
 
     gridScroll() {
-        let currentTop = window.grid.eContainer.scrollTop;
-        if ((this.topOfGrid-currentTop)>0){
-            this.result.innerHTML = ">0";
-        };
+        let grid = this.data.dataSource.grid;
+        if (this.data.lastTop>this.scrollTop ) {
+            grid.gridAddBottomRow(this,grid);
+            this.data.lastTop = this.scrollTop;
+        }
+    }
+
+    gridAddBottomRow(container,grid) {
+        let data = container.data;
+        let table = data.tableDiv;
+        let element = table.firstChild;
+        while (element.tagName != "TBODY") {
+            element = element.nextSibling
+        }
+        element = element.lastChild;  // last row
+        let rowNumber = element.data.rowNumber + 1;
+        let rowData = data.dataSource.getRowData(rowNumber);
+        grid.createDataGridRow(rowNumber, rowData)
+    }
+
+    gridDelRow(element) {
+
     }
 
     displayForm() {
-        window.dgTable.style.display = "none";
-        let form = window.dgForm;
+        let parent = this;
+        while (parent.tagName != "TABLE") {
+            parent = parent.parentNode
+        };
+        parent.style.display = "none";
+        let form = parent.parentNode.data.formDiv;
         form.style.display = "block";
         let formData = this.parentNode.data;
         form.data = formData;
         let dataRow = formData.rowData;
-        var isFocusChoosen = false;
+        var isFocusSet = false;
         var focused;
         var element = form.firstChild;
         while (element.tagName != "BUTTON") {
 
             if (element.tagName == "INPUT") {
                 element.value = dataRow[element.name];
-                if (!isFocusChoosen && (element.type != "hidden")) {
+                if (!isFocusSet && (element.type != "hidden")) {
                     focused = element;
-                    isFocusChoosen = true
+                    isFocusSet = true
                 }
                 ;
             }
@@ -41,8 +75,8 @@ class DataGrid {
     }
 
     displayGrid() {
-        window.dgTable.style.display = "table";
-        let form = window.dgForm;
+        let form = this.parentNode;
+        form.style.display = "none";
         let element = form.firstChild;
         let formData = form.data;
         let dataRow = formData.rowData;
@@ -56,13 +90,15 @@ class DataGrid {
             }
             element = element.nextSibling;
         }
-        window.dataSource.updateRowData(dataRow);
-        window.dgForm.style.display = "none"
+        form.parentNode.data.dataSource.updateRowData(dataRow);
+        form.parentNode.data.tableDiv.style.display = "table"
     }
 
     cancelEdit() {
-        window.dgTable.style.display = "table";
-        window.dgForm.style.display = "none"
+        let form = this.parentNode;
+        form.style.display = "none"
+        form.parentNode.data.tableDiv.style.display = "table";
+
     }
 
     createDataGridHeader() {
@@ -81,7 +117,6 @@ class DataGrid {
     createEditForm() {
 
         this.eForm.style.display = "none";
-        this.eForm.id = "dgForm";
         this.eForm.style.minHeight = tableDefinition.maxHeight;
         this.eForm.width = this.eContainer.width;
         let header = tableDefinition.columns;
@@ -114,10 +149,9 @@ class DataGrid {
         this.eForm.appendChild(button);
         button.addEventListener("click", this.cancelEdit);
         button.innerHTML = "Cancel";
-
+        this.eContainer.data.formDiv = this.eForm;
 
     }
-
 
     createDataGridRow(rowNumber, rowData) {
 
@@ -153,7 +187,6 @@ class DataGrid {
 
         this.eTable = document.createElement("table");
         this.eTable.className = this.className;
-        this.eTable.id = "dgTable";
         this.eContainer.appendChild(this.eTable);
 
         this.eTableHeader = document.createElement("tr");
@@ -166,6 +199,7 @@ class DataGrid {
         this.eForm = document.createElement("div");
         this.eForm.className = this.headerDefinition.formClassName;
         this.eContainer.appendChild(this.eForm);
+        this.eContainer.data = new DataGridConfig(this.eTable, this.eForm);
         this.createEditForm();
     }
 
@@ -175,7 +209,8 @@ class DataGrid {
             let rowData = this.dataSource.getRowData(i);
             this.createDataGridRow(i, rowData);
         }
-        this.topOfGrid = 0;
+        this.eContainer.data.dataSource = this.dataSource;
+        this.eContainer.data.lastTop = 0;
     }
 
 }
