@@ -19,33 +19,13 @@ class DataGrid {
     dataSource;
     eForm;
     eContainer;
+    tableDefinition;
 
-    gridScroll() {
+    navEvents = [{"action":"previouse","handler":this.gridAddTopRow},
+                    {"action":"next","handler":this.gridAddBottomRow}];
 
-
-        let grid = this.data.dataSource.grid;
-        let rowHeight = this.clientHeight / grid.rowCount;
-        let delta = this.scrollTop - this.data.lastTop;
-
-
-        let result = document.getElementById("result");
-        result.innerHTML = this.scrollTop + '|' + this.data.lastTop + '|' + delta;
-
-
-        if (delta > 0) {
-            this.data.lastTop = this.scrollTop;
-            grid.gridAddBottomRow(this, grid);
-        }
-        if (delta < 0) {
-            this.data.lastTop = this.scrollTop;
-            grid.gridAddTopRow(this, grid);
-
-        }
-
-    }
-
-    gridAddTopRow(container, grid) {
-        let data = container.data;
+    gridAddTopRow() {
+        let data = this.parentNode.parentNode.data;
         let table = data.tableDiv;
         let element = table.firstChild;
         while (element.tagName != "TBODY") {
@@ -57,14 +37,15 @@ class DataGrid {
         if (rowNumber >= 0) {
             let rowData = data.dataSource.getRowData(rowNumber);
             grid.createDataGridRow(rowNumber, rowData);
-            element.insertBefore(element.lastChild, element.firstChild);
+            element.insertBefore(element.lastChild,element.firstChild);
             element.lastChild.remove();
         }
     }
 
 
-    gridAddBottomRow(container, grid) {
-        let data = container.data;
+    gridAddBottomRow() {
+
+        let data = this.parentNode.parentNode.data;
         let table = data.tableDiv;
         let element = table.firstChild;
         while (element.tagName != "TBODY") {
@@ -74,16 +55,10 @@ class DataGrid {
         let last = element.lastChild;  // last row
         let rowNumber = last.data.rowNumber + 1;
         let rowData = data.dataSource.getRowData(rowNumber);
-        if (rowData != null) {
-            grid.createDataGridRow(rowNumber, rowData);
-            element.firstChild.remove();
-        }
+        grid.createDataGridRow(rowNumber, rowData);
+        element.firstChild.remove();
     }
 
-
-    gridDelRow(element) {
-
-    }
 
     displayForm() {
         let parent = this;
@@ -179,14 +154,14 @@ class DataGrid {
 
         let button = document.createElement("button");
         button.inputType = "button";
-        button.className = tableDefinition.buttonClass;
+        button.className = tableDefinition.form.buttonClass;
         this.eForm.appendChild(button);
         button.addEventListener("click", this.displayGrid);
         button.innerHTML = "Save";
 
         button = document.createElement("button");
         button.inputType = "button";
-        button.className = tableDefinition.buttonClass;
+        button.className = tableDefinition.form.buttonClass;
         this.eForm.appendChild(button);
         button.addEventListener("click", this.cancelEdit);
         button.innerHTML = "Cancel";
@@ -213,6 +188,27 @@ class DataGrid {
         }
     }
 
+    createDbNavigator() {
+
+        let bar = document.createElement("div");
+        bar.className = tableDefinition.navigator.className;
+        this.eContainer.appendChild(bar);
+        var i;
+        let buttons = tableDefinition.navigator.buttons;
+        for (i=0;i< buttons.length;i++){
+            let btn =   document.createElement("button");
+            btn.className = tableDefinition.navigator.buttonClass;
+            btn.innerHTML=buttons[i].label;
+            bar.appendChild(btn);
+            var j;
+            for (j=0;j<this.navEvents.length;j++){
+                if (this.navEvents[j].action=buttons[i].action){
+                    btn.addEventListener("click",this.navEvents[j].handler);
+                }
+            }
+        }
+    }
+
 
     constructor(container, className, name, tableDefinition) {
 
@@ -221,10 +217,7 @@ class DataGrid {
         this.headerDefinition = tableDefinition;
         this.rowCount = tableDefinition.displayRowCount;
         this.name = name;
-
-        this.eContainer.style.maxHeight = this.headerDefinition.maxHeight;
-        this.eContainer.style.overflow = "auto"
-        this.eContainer.addEventListener("scroll", this.gridScroll);
+        this.tableDefinition = tableDefinition;
 
         this.eTable = document.createElement("table");
         this.eTable.className = this.className;
@@ -241,7 +234,13 @@ class DataGrid {
         this.eForm.className = this.headerDefinition.formClassName;
         this.eContainer.appendChild(this.eForm);
         this.eContainer.data = new DataGridConfig(this.eTable, this.eForm);
-        this.createEditForm();
+        if (this.tableDefinition.form != undefined) {
+            this.createEditForm()
+        }
+        ;
+        if (this.tableDefinition.navigator != undefined) {
+            this.createDbNavigator()
+        }
     }
 
     build() {
@@ -253,6 +252,7 @@ class DataGrid {
         this.eContainer.data.dataSource = this.dataSource;
         this.eContainer.data.lastTop = 0;
     }
+
 
 }
 
