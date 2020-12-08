@@ -21,25 +21,65 @@ class DataGrid {
     eContainer;
 
     gridScroll() {
+
+
         let grid = this.data.dataSource.grid;
-        if (this.data.lastTop>this.scrollTop ) {
-            grid.gridAddBottomRow(this,grid);
+        let rowHeight = this.clientHeight / grid.rowCount;
+        let delta = this.scrollTop - this.data.lastTop;
+
+
+        let result = document.getElementById("result");
+        result.innerHTML = this.scrollTop + '|' + this.data.lastTop + '|' + delta;
+
+
+        if (delta > 0) {
             this.data.lastTop = this.scrollTop;
+            grid.gridAddBottomRow(this, grid);
         }
+        if (delta < 0) {
+            this.data.lastTop = this.scrollTop;
+            grid.gridAddTopRow(this, grid);
+
+        }
+
     }
 
-    gridAddBottomRow(container,grid) {
+    gridAddTopRow(container, grid) {
         let data = container.data;
         let table = data.tableDiv;
         let element = table.firstChild;
         while (element.tagName != "TBODY") {
             element = element.nextSibling
         }
-        element = element.lastChild;  // last row
-        let rowNumber = element.data.rowNumber + 1;
-        let rowData = data.dataSource.getRowData(rowNumber);
-        grid.createDataGridRow(rowNumber, rowData)
+
+        let first = element.firstChild;  // first row
+        let rowNumber = first.data.rowNumber - 1;
+        if (rowNumber >= 0) {
+            let rowData = data.dataSource.getRowData(rowNumber);
+            grid.createDataGridRow(rowNumber, rowData);
+            element.insertBefore(element.lastChild, element.firstChild);
+            element.lastChild.remove();
+        }
     }
+
+
+    gridAddBottomRow(container, grid) {
+        let data = container.data;
+        let table = data.tableDiv;
+        let element = table.firstChild;
+        while (element.tagName != "TBODY") {
+            element = element.nextSibling
+        }
+
+        let last = element.lastChild;  // last row
+        let rowNumber = last.data.rowNumber + 1;
+        let rowData = data.dataSource.getRowData(rowNumber);
+        if (rowData != null) {
+            grid.createDataGridRow(rowNumber, rowData);
+            element.firstChild.remove();
+        }
+    }
+
 
     gridDelRow(element) {
 
@@ -49,7 +89,8 @@ class DataGrid {
         let parent = this;
         while (parent.tagName != "TABLE") {
             parent = parent.parentNode
-        };
+        }
+        ;
         parent.style.display = "none";
         let form = parent.parentNode.data.formDiv;
         form.style.display = "block";
