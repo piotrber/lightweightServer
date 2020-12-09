@@ -1,8 +1,7 @@
 var tableDefinition = {
     "headerClass": "w3-theme",
     "editable":"true",
-    "maxHeight": "360px",
-    "displayRowCount": 12,
+    "displayRowCount": 10,
     "rowClass": "w3-hover-red",
     "columns": [
         {

@@ -21,8 +21,8 @@ class DataGrid {
     eContainer;
     tableDefinition;
 
-    navEvents = [{"action":"previouse","handler":this.gridAddTopRow},
-                    {"action":"next","handler":this.gridAddBottomRow}];
+    navEvents = [{"action": "previous", "handler": this.gridAddTopRow},
+        {"action": "next", "handler": this.gridAddBottomRow}];
 
     gridAddTopRow() {
         let data = this.parentNode.parentNode.data;
@@ -37,7 +37,7 @@ class DataGrid {
         if (rowNumber >= 0) {
             let rowData = data.dataSource.getRowData(rowNumber);
             grid.createDataGridRow(rowNumber, rowData);
-            element.insertBefore(element.lastChild,element.firstChild);
+            element.insertBefore(element.lastChild, element.firstChild);
             element.lastChild.remove();
         }
     }
@@ -55,8 +55,10 @@ class DataGrid {
         let last = element.lastChild;  // last row
         let rowNumber = last.data.rowNumber + 1;
         let rowData = data.dataSource.getRowData(rowNumber);
-        grid.createDataGridRow(rowNumber, rowData);
-        element.firstChild.remove();
+        if (rowData != null) {
+            grid.createDataGridRow(rowNumber, rowData);
+            element.firstChild.remove();
+        }
     }
 
 
@@ -195,15 +197,15 @@ class DataGrid {
         this.eContainer.appendChild(bar);
         var i;
         let buttons = tableDefinition.navigator.buttons;
-        for (i=0;i< buttons.length;i++){
-            let btn =   document.createElement("button");
+        for (i = 0; i < buttons.length; i++) {
+            let btn = document.createElement("button");
             btn.className = tableDefinition.navigator.buttonClass;
-            btn.innerHTML=buttons[i].label;
+            btn.innerHTML = buttons[i].label;
             bar.appendChild(btn);
             var j;
-            for (j=0;j<this.navEvents.length;j++){
-                if (this.navEvents[j].action=buttons[i].action){
-                    btn.addEventListener("click",this.navEvents[j].handler);
+            for (j = 0; j < this.navEvents.length; j++) {
+                if (this.navEvents[j].action == buttons[i].action) {
+                    btn.addEventListener("click", this.navEvents[j].handler);
                 }
             }
         }
