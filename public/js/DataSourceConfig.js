@@ -10,12 +10,12 @@ class DataSourceConfig {
 
 
 
-    constructor(tableName, rootUrl, getAllUrl, updateUrl, getNextUrl, getPrevUrl, insertUrl,  deleteUrl, sortByColumnName) {
+    constructor(tableName, rootUrl, getAllUrl, updateUrl, getNextPgUrl, getPrevPgUrl, insertUrl,  deleteUrl, sortByColumnName) {
         this.tableName = tableName;
         this.rootUrl= rootUrl;
         this.getAllUrl = this.rootUrl+getAllUrl;
-        this.getNextUrl =  this.rootUrl+ getNextUrl;
-        this.getPrevUrl = this.rootUrl+getPrevUrl;
+        this.getNextUrl =  this.rootUrl+ getNextPgUrl;
+        this.getPrevUrl = this.rootUrl+getPrevPgUrl;
         this.insertUrl = this.rootUrl+insertUrl;
         this.updateUrl = this.rootUrl+updateUrl;
         this.deleteUrl = this.rootUrl+deleteUrl;

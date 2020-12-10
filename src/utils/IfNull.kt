@@ -14,7 +14,7 @@ class IfNull<T>(private val value: T?, val subst: T) {
 
 fun String?.ifNull(subst: String): String {
 
-    return if ( this== null) {
+    return if (this == null) {
         subst
     } else {
         this

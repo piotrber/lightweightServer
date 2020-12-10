@@ -20,11 +20,13 @@ class DataGrid {
     eForm;
     eContainer;
     tableDefinition;
+    sortFieldName;
+    sortOrder;
 
     navEvents = [{"action": "previous", "handler": this.gridAddTopRow},
         {"action": "next", "handler": this.gridAddBottomRow}];
 
-    gridAddTopRow() {
+    gridAddTopRow(event) {
         let data = this.parentNode.parentNode.data;
         let table = data.tableDiv;
         let element = table.firstChild;
@@ -43,7 +45,7 @@ class DataGrid {
     }
 
 
-    gridAddBottomRow() {
+    gridAddBottomRow(event) {
 
         let data = this.parentNode.parentNode.data;
         let table = data.tableDiv;
@@ -119,15 +121,89 @@ class DataGrid {
 
     }
 
+    clearTable() {
+        let row = this.eTableBody.lastChild;
+        while (row != undefined) {
+            let prev = row.previousSibling;
+            row.remove();
+            row = prev;
+        }
+    }
+
+
+    reloadTable() {
+        this.clearTable();
+        this.dataSource.reload();
+    }
+
+    changeSortOrder() {
+        let element = this;
+        let newSortOrder = 0;
+        if (element.data.sortOrder == 0) {
+            let item = element.parentNode.firstChild;
+            while (item.data.sortOrder == 0) {
+                item = item.nextSibling
+            }
+            newSortOrder = item.data.sortOrder;
+            item.data.sortOrder = 0;
+            item.className = tableDefinition.columns[item.data.colNo].cellClass;
+            item.innerHTML = tableDefinition.columns[item.data.colNo].label;
+            element.className = element.className + " " + tableDefinition.sortOrderClassName;
+        } else {
+            newSortOrder = -element.data.sortOrder;
+        }
+        ;
+
+        element.innerHTML = tableDefinition.columns[element.data.colNo].label;
+        if (newSortOrder == 1) {
+            element.innerHTML = element.innerHTML + " +"
+        } else {
+            element.innerHTML = "- " + element.innerHTML
+        }
+        element.data.sortOrder = newSortOrder
+        window.grid.sortFieldName = element.data.fieldName;
+        window.grid.sortOrder = newSortOrder;
+
+        window.grid.reloadTable();
+    }
+
+    scroll(event) {
+        // if (event.deltaY > 0) {
+        //     window.grid.gridAddTopRow(event)
+        // } else {
+        //     window.grid.gridAddBottomRow(event)
+        }
+
+    }
+
     createDataGridHeader() {
+
         this.eTableHeader.className = tableDefinition.headerClass;
         let header = tableDefinition.columns;
         var i;
         for (i = 0; i < header.length; i++) {
+
             let cell = document.createElement("th")
             this.eTableHeader.appendChild(cell);
             cell.className = header[i].cellClass;
             cell.innerHTML = header[i].label;
+
+            let sort = header[i].sortOrder;
+            if (sort != "0") {
+
+                cell.className = cell.className + " " + tableDefinition.sortOrderClassName
+                if (sort == 1) {
+                    cell.innerHTML = cell.innerHTML + " +"
+                } else {
+                    cell.innerHTML = "- " + element.innerHTML
+                }
+                this.sortFieldName = header[i].fieldName;
+                this.sortOrder = header[i].sortOrder;
+
+            }
+            cell.data = {"colNo": i, "fieldName": header[i].fieldName, "sortOrder": sort}
+            cell.addEventListener("click", this.changeSortOrder)
+
         }
     }
 
@@ -230,7 +306,8 @@ class DataGrid {
         this.createDataGridHeader();
 
         this.eTableBody = document.createElement("tbody");
-        this.eTable.appendChild(this.eTableBody)
+        this.eTable.appendChild(this.eTableBody);
+        this.eTableBody.addEventListener("wheel", this.scroll)
 
         this.eForm = document.createElement("div");
         this.eForm.className = this.headerDefinition.formClassName;

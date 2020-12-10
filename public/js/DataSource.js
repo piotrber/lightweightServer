@@ -7,6 +7,9 @@ class DataSource {
     tableName;
     minIndex = 0;
     maxIndex = 0;
+    sortFieldName;
+    sortOrder;
+
 
     constructor(dataSourceConfig, grid) {
 
@@ -27,7 +30,6 @@ class DataSource {
         this.loadAll();
     }
 
-    currentId = 0;
     minValue;
     maxValue;
     tableData;
@@ -35,9 +37,15 @@ class DataSource {
 
     start(data) {
         this.tableData = data[this.tableName];
-        this.grid.build();
+        this.reload()
     }
 
+    reload() {
+        this.sortFieldName = this.grid.sortFieldName;
+        this.sortOrder = this.grid.sortOrder;
+        this.tableData.sort(this.compare);
+        this.grid.build();
+    }
 
     loadAll() {
         $.when(
@@ -59,15 +67,18 @@ class DataSource {
     }
 
     getRowData(i) {
+
         if (i > this.maxIndex) {
             this.maxIndex = i
         }
-        if (i<this.tableData.length){
+
+        if (i < this.tableData.length) {
             return this.tableData[i];
         } else {
             return null;
         }
     }
+
 
     getRow(id) {
         return this.loadRowData(id, this.getUrl)
@@ -114,5 +125,18 @@ class DataSource {
         alert("Data: " + data + "\nStatus: " + status);
     }
 
+    compare(a, b) {
 
+        let col = window.dataSource.sortFieldName;
+        let sortOrder = window.dataSource.sortOrder;
+
+        if (isNaN(a[col])) {
+            if (a[col] > b[col]) {
+                return sortOrder
+            } else {
+                return -sortOrder
+            }
+        } else return (a[col] - b[col])*sortOrder
+
+    }
 }

@@ -110,7 +110,7 @@ fun personDataList(): List<Person> {
     val personList = mutableListOf<Person>()
     transaction {
 
-        val personData = PersonData.selectAll().orderBy(PersonData.lname).toList()
+        val personData = PersonData.selectAll().toList()
         personData.forEach {
             val person = PersonData.mapResultRowToPerson(it)
             personList.add(person)

@@ -3,6 +3,7 @@ var tableDefinition = {
     "editable":"true",
     "displayRowCount": 10,
     "rowClass": "w3-hover-red",
+    "sortOrderClassName":"w3-large",
     "columns": [
         {
             "cellClass": "w3-right-align w3-border",
@@ -10,7 +11,8 @@ var tableDefinition = {
             "inputType": "hidden",
             "inputClass": "w3-input",
             "fieldName": "id",
-            "fieldClass": "w3-right-align  w3-border"
+            "fieldClass": "w3-right-align  w3-border",
+            "sortOrder":"0" // -1 desc +1 asc
         },
         {
             "cellClass": "w3-center  w3-border",
@@ -19,6 +21,7 @@ var tableDefinition = {
             "inputClass": "w3-input w3-margin",
             "fieldName": "fname",
             "fieldClass": "w3-center  w3-border",
+            "sortOrder":"0"
         },
         {
             "cellClass": "w3-center w3-border",
@@ -26,7 +29,8 @@ var tableDefinition = {
             "inputType": "text",
             "inputClass": "w3-input w3-margin",
             "fieldName": "lname",
-            "fieldClass": "w3-center  w3-border"
+            "fieldClass": "w3-center  w3-border",
+            "sortOrder":"1"
         }
     ],
     "form": {
@@ -42,7 +46,7 @@ var tableDefinition = {
             {"action": "previous", "label": "<"},
             {"action": "next", "label": ">"},
             {"action": "pgUp", "label": ">>"},
-            {"action": "last", "label": ">|"}
+            {"action": "insert", "label": "+"}
             ] // all are optional
     }
 }
