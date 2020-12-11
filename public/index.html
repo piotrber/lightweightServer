@@ -34,7 +34,7 @@
 
 <div class="w3-row">
     <div class="w3-col m2 w3-center w3-theme-l1">left</div>
-    <div class="w3-col m8 w3-center w3-theme-l5" id="table"></div>
+    <div class="w3-col m8 w3-center w3-theme-l5" id="dgGrid"></div>
     <div class="w3-col m2 w3-center w3-theme-l1" id="result">right</div>
 </div>
 <div class="w3-row w3-theme-l5">
@@ -51,9 +51,10 @@
 <script src="DataSourceConfig.js"></script>
 <script src="DataGrid.js"></script>
 <script src="start.js"></script>
+<script src="util.js"></script>
 <script src="DataSource.js"></script>
 <script>
-    let container = document.getElementById("table")
+    let container = document.getElementById("dgGrid")
     var dataSourceConfig;
     var dataSource;
     var grid;

@@ -1,4 +1,6 @@
 var tableDefinition = {
+    "id":"dgGrid",
+    "className":"w3-table-all w3-hoverable",
     "headerClass": "w3-theme",
     "editable":"true",
     "displayRowCount": 10,
@@ -37,8 +39,9 @@ var tableDefinition = {
         "formClass": "w3-container w3-margin w3-padding-large",
         "buttonClass": "w3-button w3-theme w3-margin w3-hover-red"
     },
+    "navPanelClass": "w3-container w3-margin w3-padding",
     "navigator": {
-        "className": "w3-bar w3-theme w3-left w3-margin",
+        "className": "w3-bar w3-theme w3-left",
         "buttonClass": "w3-bar-item w3-button w3-hover-red",
         "buttons": [
             {"action": "first", "label": "|<"},
@@ -48,11 +51,12 @@ var tableDefinition = {
             {"action": "pgUp", "label": ">>"},
             {"action": "insert", "label": "+"}
             ] // all are optional
-    }
+    },
+    "searchInput":{"className":"w3-input w3-margin","style":"width:30%"}
 }
 
-function start(container) {
+function start() {
     dataSourceConfig = new DataSourceConfig("personList", "http://localhost:8080/", "all", "updatePerson");
-    grid = new DataGrid(container, "w3-table-all w3-hoverable", "dataGrid", tableDefinition);
+    grid = new DataGrid("dataGrid", tableDefinition);
     dataSource = new DataSource(dataSourceConfig, grid);
 }

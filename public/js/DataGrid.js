@@ -2,11 +2,15 @@ class DataGridConfig {
     dataSource;
     tableDiv;
     formDiv;
+    navPanel;
     lastTop;
+    searchInput;
 
-    constructor(tablediv, formDiv) {
+    constructor(tableDiv, formDiv, navPanel, searchInput) {
         this.formDiv = formDiv;
-        this.tableDiv = tablediv;
+        this.tableDiv = tableDiv;
+        this.navPanel = navPanel;
+        this.searchInput = searchInput;
     }
 }
 
@@ -22,12 +26,13 @@ class DataGrid {
     tableDefinition;
     sortFieldName;
     sortOrder;
+    eSearchInput;
 
     navEvents = [{"action": "previous", "handler": this.gridAddTopRow},
         {"action": "next", "handler": this.gridAddBottomRow}];
 
     gridAddTopRow(event) {
-        let data = this.parentNode.parentNode.data;
+        let data = this.parentNode.parentNode.parentNode.data;
         let table = data.tableDiv;
         let element = table.firstChild;
         while (element.tagName != "TBODY") {
@@ -47,7 +52,7 @@ class DataGrid {
 
     gridAddBottomRow(event) {
 
-        let data = this.parentNode.parentNode.data;
+        let data = this.parentNode.parentNode.parentNode.data;
         let table = data.tableDiv;
         let element = table.firstChild;
         while (element.tagName != "TBODY") {
@@ -91,6 +96,9 @@ class DataGrid {
             }
             element = element.nextSibling;
         }
+        parent = parent.parentNode;
+        let navPanel = parent.data.navPanel;
+        navPanel.style.display = "none";
         focused.focus();
     }
 
@@ -111,15 +119,21 @@ class DataGrid {
             element = element.nextSibling;
         }
         form.parentNode.data.dataSource.updateRowData(dataRow);
-        form.parentNode.data.tableDiv.style.display = "table"
+        let data = form.parentNode.data;
+        data.tableDiv.style.display = "table";
+        data.navPanel.style.display = "block";
+        data.searchInput.focus()
     }
 
     cancelEdit() {
         let form = this.parentNode;
-        form.style.display = "none"
-        form.parentNode.data.tableDiv.style.display = "table";
-
+        form.style.display = "none";
+        let data = form.parentNode.data;
+        data.tableDiv.style.display = "table";
+        data.navPanel.style.display = "block";
+        data.searchInput.focus()
     }
+
 
     clearTable() {
         let row = this.eTableBody.lastChild;
@@ -168,12 +182,23 @@ class DataGrid {
     }
 
     scroll(event) {
-        // if (event.deltaY > 0) {
-        //     window.grid.gridAddTopRow(event)
-        // } else {
-        //     window.grid.gridAddBottomRow(event)
-        }
 
+        let nav = this.parentNode.parentNode.data.navPanel.firstChild;
+        if (event.deltaY > 0) {
+            nav.data.execute(nav, "next")
+        } else {
+            nav.data.execute(nav, "previous")
+        }
+    }
+
+    kbdEvent(event) {
+        let nav = this.parentNode.parentNode.data.navPanel.firstChild;
+        if (event.code == "ArrowUp") {
+            nav.data.execute(nav, "previous")
+        };
+        if (event.code == "ArrowDown") {
+            nav.data.execute(nav, "next");
+        }
     }
 
     createDataGridHeader() {
@@ -243,7 +268,6 @@ class DataGrid {
         this.eForm.appendChild(button);
         button.addEventListener("click", this.cancelEdit);
         button.innerHTML = "Cancel";
-        this.eContainer.data.formDiv = this.eForm;
 
     }
 
@@ -269,14 +293,16 @@ class DataGrid {
     createDbNavigator() {
 
         let bar = document.createElement("div");
+        this.dbNavigator = bar;
         bar.className = tableDefinition.navigator.className;
-        this.eContainer.appendChild(bar);
+        this.navPanel.appendChild(bar);
         var i;
         let buttons = tableDefinition.navigator.buttons;
         for (i = 0; i < buttons.length; i++) {
             let btn = document.createElement("button");
             btn.className = tableDefinition.navigator.buttonClass;
             btn.innerHTML = buttons[i].label;
+            btn.data = buttons[i].action;
             bar.appendChild(btn);
             var j;
             for (j = 0; j < this.navEvents.length; j++) {
@@ -285,17 +311,27 @@ class DataGrid {
                 }
             }
         }
+        bar.data={"execute":this.dbNavExec};
+    }
+
+    dbNavExec(dbNavigator, action) {
+
+        let button = dbNavigator.firstChild;
+
+        while (button.data != action) {
+            button = button.nextSibling
+        }
+        button.click();
     }
 
 
-    constructor(container, className, name, tableDefinition) {
+    constructor(name, tableDefinition) {
 
-        this.eContainer = container;
-        this.className = className;
-        this.headerDefinition = tableDefinition;
+        this.tableDefinition = tableDefinition;
+        this.eContainer = document.getElementById(this.tableDefinition.id)
+        this.className = this.tableDefinition.className;
         this.rowCount = tableDefinition.displayRowCount;
         this.name = name;
-        this.tableDefinition = tableDefinition;
 
         this.eTable = document.createElement("table");
         this.eTable.className = this.className;
@@ -309,17 +345,33 @@ class DataGrid {
         this.eTable.appendChild(this.eTableBody);
         this.eTableBody.addEventListener("wheel", this.scroll)
 
+
         this.eForm = document.createElement("div");
-        this.eForm.className = this.headerDefinition.formClassName;
+        this.eForm.className = this.tableDefinition.formClassName;
         this.eContainer.appendChild(this.eForm);
-        this.eContainer.data = new DataGridConfig(this.eTable, this.eForm);
+
         if (this.tableDefinition.form != undefined) {
             this.createEditForm()
         }
         ;
+        this.navPanel = document.createElement("div");
+        this.navPanel.class = this.tableDefinition.navPanel;
+        this.eContainer.appendChild(this.navPanel);
+
         if (this.tableDefinition.navigator != undefined) {
             this.createDbNavigator()
         }
+        if (this.tableDefinition.searchInput != undefined) {
+
+            this.eSearchInput = document.createElement("input");
+            this.eSearchInput.type = "search"
+            this.eSearchInput.className = this.tableDefinition.searchInput.className;
+            this.eSearchInput.style = this.tableDefinition.searchInput.style;
+            this.navPanel.appendChild(this.eSearchInput);
+            this.eSearchInput.addEventListener("keydown", this.kbdEvent)
+        }
+
+        this.eContainer.data = new DataGridConfig(this.eTable, this.eForm, this.navPanel, this.eSearchInput);
     }
 
     build() {
@@ -330,6 +382,8 @@ class DataGrid {
         }
         this.eContainer.data.dataSource = this.dataSource;
         this.eContainer.data.lastTop = 0;
+        this.eContainer.data.searchInput.focus();
+
     }
 
 
