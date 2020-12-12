@@ -1,12 +1,13 @@
 class DataGridConfig {
+    owner;
     dataSource;
     tableDiv;
     formDiv;
     navPanel;
-    lastTop;
     searchInput;
 
-    constructor(tableDiv, formDiv, navPanel, searchInput) {
+    constructor(owner, tableDiv, formDiv, navPanel, searchInput) {
+        this.owner = owner;
         this.formDiv = formDiv;
         this.tableDiv = tableDiv;
         this.navPanel = navPanel;
@@ -19,7 +20,6 @@ class DataGrid {
 
     eTableHeader;
     eTableBody;
-    dataSourceConfig;
     dataSource;
     eForm;
     eContainer;
@@ -27,179 +27,8 @@ class DataGrid {
     sortFieldName;
     sortOrder;
     eSearchInput;
-
-    navEvents = [{"action": "previous", "handler": this.gridAddTopRow},
-        {"action": "next", "handler": this.gridAddBottomRow}];
-
-    gridAddTopRow(event) {
-        let data = this.parentNode.parentNode.parentNode.data;
-        let table = data.tableDiv;
-        let element = table.firstChild;
-        while (element.tagName != "TBODY") {
-            element = element.nextSibling
-        }
-
-        let first = element.firstChild;  // first row
-        let rowNumber = first.data.rowNumber - 1;
-        if (rowNumber >= 0) {
-            let rowData = data.dataSource.getRowData(rowNumber);
-            grid.createDataGridRow(rowNumber, rowData);
-            element.insertBefore(element.lastChild, element.firstChild);
-            element.lastChild.remove();
-        }
-    }
-
-
-    gridAddBottomRow(event) {
-
-        let data = this.parentNode.parentNode.parentNode.data;
-        let table = data.tableDiv;
-        let element = table.firstChild;
-        while (element.tagName != "TBODY") {
-            element = element.nextSibling
-        }
-
-        let last = element.lastChild;  // last row
-        let rowNumber = last.data.rowNumber + 1;
-        let rowData = data.dataSource.getRowData(rowNumber);
-        if (rowData != null) {
-            grid.createDataGridRow(rowNumber, rowData);
-            element.firstChild.remove();
-        }
-    }
-
-
-    displayForm() {
-        let parent = this;
-        while (parent.tagName != "TABLE") {
-            parent = parent.parentNode
-        }
-        ;
-        parent.style.display = "none";
-        let form = parent.parentNode.data.formDiv;
-        form.style.display = "block";
-        let formData = this.parentNode.data;
-        form.data = formData;
-        let dataRow = formData.rowData;
-        var isFocusSet = false;
-        var focused;
-        var element = form.firstChild;
-        while (element.tagName != "BUTTON") {
-
-            if (element.tagName == "INPUT") {
-                element.value = dataRow[element.name];
-                if (!isFocusSet && (element.type != "hidden")) {
-                    focused = element;
-                    isFocusSet = true
-                }
-                ;
-            }
-            element = element.nextSibling;
-        }
-        parent = parent.parentNode;
-        let navPanel = parent.data.navPanel;
-        navPanel.style.display = "none";
-        focused.focus();
-    }
-
-    displayGrid() {
-        let form = this.parentNode;
-        form.style.display = "none";
-        let element = form.firstChild;
-        let formData = form.data;
-        let dataRow = formData.rowData;
-        let cell = formData.element.firstChild;
-        while (element.tagName != "BUTTON") {
-
-            if (element.tagName == "INPUT") {
-                dataRow[element.name] = element.value;
-                cell.innerHTML = element.value;
-                cell = cell.nextSibling;
-            }
-            element = element.nextSibling;
-        }
-        form.parentNode.data.dataSource.updateRowData(dataRow);
-        let data = form.parentNode.data;
-        data.tableDiv.style.display = "table";
-        data.navPanel.style.display = "block";
-        data.searchInput.focus()
-    }
-
-    cancelEdit() {
-        let form = this.parentNode;
-        form.style.display = "none";
-        let data = form.parentNode.data;
-        data.tableDiv.style.display = "table";
-        data.navPanel.style.display = "block";
-        data.searchInput.focus()
-    }
-
-
-    clearTable() {
-        let row = this.eTableBody.lastChild;
-        while (row != undefined) {
-            let prev = row.previousSibling;
-            row.remove();
-            row = prev;
-        }
-    }
-
-
-    reloadTable() {
-        this.clearTable();
-        this.dataSource.reload();
-    }
-
-    changeSortOrder() {
-        let element = this;
-        let newSortOrder = 0;
-        if (element.data.sortOrder == 0) {
-            let item = element.parentNode.firstChild;
-            while (item.data.sortOrder == 0) {
-                item = item.nextSibling
-            }
-            newSortOrder = item.data.sortOrder;
-            item.data.sortOrder = 0;
-            item.className = tableDefinition.columns[item.data.colNo].cellClass;
-            item.innerHTML = tableDefinition.columns[item.data.colNo].label;
-            element.className = element.className + " " + tableDefinition.sortOrderClassName;
-        } else {
-            newSortOrder = -element.data.sortOrder;
-        }
-        ;
-
-        element.innerHTML = tableDefinition.columns[element.data.colNo].label;
-        if (newSortOrder == 1) {
-            element.innerHTML = element.innerHTML + " +"
-        } else {
-            element.innerHTML = "- " + element.innerHTML
-        }
-        element.data.sortOrder = newSortOrder
-        window.grid.sortFieldName = element.data.fieldName;
-        window.grid.sortOrder = newSortOrder;
-
-        window.grid.reloadTable();
-    }
-
-    scroll(event) {
-
-        let nav = this.parentNode.parentNode.data.navPanel.firstChild;
-        if (event.deltaY > 0) {
-            nav.data.execute(nav, "next")
-        } else {
-            nav.data.execute(nav, "previous")
-        }
-    }
-
-    kbdEvent(event) {
-        let nav = this.parentNode.parentNode.data.navPanel.firstChild;
-        if (event.code == "ArrowUp") {
-            nav.data.execute(nav, "previous")
-        };
-        if (event.code == "ArrowDown") {
-            nav.data.execute(nav, "next");
-        }
-    }
+    navEvents;
+    engine;
 
     createDataGridHeader() {
 
@@ -226,8 +55,8 @@ class DataGrid {
                 this.sortOrder = header[i].sortOrder;
 
             }
-            cell.data = {"colNo": i, "fieldName": header[i].fieldName, "sortOrder": sort}
-            cell.addEventListener("click", this.changeSortOrder)
+            cell.data = {"colNo": i, "fieldName": header[i].fieldName, "sortOrder": sort, "owner": this.eContainer}
+            cell.addEventListener("click", this.engine.changeSortOrder)
 
         }
     }
@@ -259,14 +88,14 @@ class DataGrid {
         button.inputType = "button";
         button.className = tableDefinition.form.buttonClass;
         this.eForm.appendChild(button);
-        button.addEventListener("click", this.displayGrid);
+        button.addEventListener("click", this.engine.displayGrid);
         button.innerHTML = "Save";
 
         button = document.createElement("button");
         button.inputType = "button";
         button.className = tableDefinition.form.buttonClass;
         this.eForm.appendChild(button);
-        button.addEventListener("click", this.cancelEdit);
+        button.addEventListener("click", this.engine.cancelEdit);
         button.innerHTML = "Cancel";
 
     }
@@ -285,7 +114,7 @@ class DataGrid {
             let td = document.createElement("td");
             td.innerHTML = rowData[fields[i].fieldName];
             td.className = fields[i].fieldClass;
-            td.addEventListener("click", this.displayForm);
+            td.addEventListener("click", this.engine.displayForm);
             tr.appendChild(td)
         }
     }
@@ -311,21 +140,20 @@ class DataGrid {
                 }
             }
         }
-        bar.data={"execute":this.dbNavExec};
+        bar.data = {"execute": this.dbNavExec};
     }
 
-    dbNavExec(dbNavigator, action) {
 
-        let button = dbNavigator.firstChild;
-
-        while (button.data != action) {
-            button = button.nextSibling
-        }
-        button.click();
-    }
 
 
     constructor(name, tableDefinition) {
+        this.engine = new DataGridEngine(this);
+
+
+        this.navEvents = [{"action": "previous", "handler": this.engine.gridAddTopRow},
+            {"action": "next", "handler": this.engine.gridAddBottomRow}];
+
+
 
         this.tableDefinition = tableDefinition;
         this.eContainer = document.getElementById(this.tableDefinition.id)
@@ -343,7 +171,7 @@ class DataGrid {
 
         this.eTableBody = document.createElement("tbody");
         this.eTable.appendChild(this.eTableBody);
-        this.eTableBody.addEventListener("wheel", this.scroll)
+        this.eTableBody.addEventListener("wheel", this.engine.scroll)
 
 
         this.eForm = document.createElement("div");
@@ -368,10 +196,10 @@ class DataGrid {
             this.eSearchInput.className = this.tableDefinition.searchInput.className;
             this.eSearchInput.style = this.tableDefinition.searchInput.style;
             this.navPanel.appendChild(this.eSearchInput);
-            this.eSearchInput.addEventListener("keydown", this.kbdEvent)
+            this.eSearchInput.addEventListener("keydown", this.engine.kbdEvent)
         }
 
-        this.eContainer.data = new DataGridConfig(this.eTable, this.eForm, this.navPanel, this.eSearchInput);
+        this.eContainer.data = new DataGridConfig(this, this.eTable, this.eForm, this.navPanel, this.eSearchInput);
     }
 
     build() {
@@ -382,7 +210,9 @@ class DataGrid {
         }
         this.eContainer.data.dataSource = this.dataSource;
         this.eContainer.data.lastTop = 0;
-        this.eContainer.data.searchInput.focus();
+        if (this.eContainer.data.searchInput != undefined) {
+            this.eContainer.data.searchInput.focus()
+        };
 
     }
 
