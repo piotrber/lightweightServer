@@ -3,12 +3,16 @@ class DataSource {
     grid;
     dataSourceConfig;
     getAllUrl;
+    getPageUrl;
     updateUrl;
     tableName;
-    minIndex = 0;
-    maxIndex = 0;
+    rowCount;
     sortFieldName;
     sortOrder;
+    minValue;
+    maxValue;
+
+    tableData;
 
 
     constructor(dataSourceConfig, grid) {
@@ -16,23 +20,13 @@ class DataSource {
         this.grid = grid;
         this.grid.dataSource = this;
         this.dataSourceConfig = dataSourceConfig;
+        this.rowCount = dataSourceConfig.rowCount;
         this.getAllUrl = dataSourceConfig.getAllUrl;
         this.updateUrl = dataSourceConfig.updateUrl;
         this.tableName = dataSourceConfig.tableName;
-        // this.getUrl = getUrl;
-        // this.getNextUrl = getNextUrl;
-        // this.getPrevUrl = getPrevUrl;
-        // this.insertPath = insertUrl;
-
-        // this.deleteUrl = deleteUrl;
-        // this.sortByColumnName = sortByColumnName;
-
+        this.getPageUrl = dataSourceConfig.getPageUrl;
         this.loadAll();
     }
-
-    minValue;
-    maxValue;
-    tableData;
 
 
     start(data) {
@@ -44,7 +38,10 @@ class DataSource {
         this.sortFieldName = this.grid.sortFieldName;
         this.sortOrder = this.grid.sortOrder;
         this.tableData.sort(this.compare);
+        this.minValue = this.tableData[0][this.sortFieldName];
+        this.maxValue = this.tableData[this.tableData.length - 1][this.sortFieldName];
         this.grid.build();
+
     }
 
     loadAll() {
@@ -57,6 +54,7 @@ class DataSource {
     }
 
     updateRowData(rowData) {
+
         $.ajax({
             url: this.updateUrl,
             type: "POST",
@@ -79,50 +77,86 @@ class DataSource {
         }
     }
 
+    loadPage(data,status,xhr) {
 
-    getRow(id) {
-        return this.loadRowData(id, this.getUrl)
-    }
+        this.tableData = data;
 
-    getPrevRow(value) {
 
-        let data = this.loadRowData(value, this.getPrevUrl)
-        if (data[this.sortByColumnName] < this.minValue) {
-            this.minValue = data[this.sortByColumnName]
-        }
-    }
-
-    getNextRow(value) {
-
-        let data = this.loadRowData(value, this.getNextUrl)
-        if (data[this.sortByColumnName] > this.maxValue) {
-            this.maxValue = data[this.sortByColumnName]
-        }
-        return data
     }
 
 
-    loadRowData(value, getUrl) {
-        var dataObject;
+    getPage() {
 
-        recive(data, status)
-        {
-            dataObject = data;
-            if (data[this.sortByColumnName] > this.maxValue) {
-                this.maxValue = data[this.sortByColumnName]
-            }
-        }
+        var value;
 
-        getObject(value)
-        {
-            $.get(getUrl + "?" + value + "&" + this.sortByColumnName, recive)
+        if ((this.sortOrder == 1) && (this.rowCount > 0)
+            || ((this.sortOrder == -1) && (this.rowCount < 0))) {
+            value = this.maxValue
+        } else {
+            value = this.minValue
         }
-        return dataObject;
+        var sortOrderStr;
+        if (this.sortOrder=1) { sortOrderStr="ASC"} else {sortOrderStr = "DESC"}
+        let selectParams = new SelectParams(this.rowCount, this.sortFieldName,value, sortOrderStr)
+
+        let data = JSON.stringify(selectParams);
+        $.ajax({
+            url: this.getPageUrl,
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(selectParams),
+            error: this.checkStatus,
+            success:this.loadPage
+        });
+
+
     }
 
 
-    checkStatus(data, status) {
-        alert("Data: " + data + "\nStatus: " + status);
+    //
+    // getRow(id) {
+    //     return this.loadRowData(id, this.getUrl)
+    // }
+    //
+    // getPrevRow(value) {
+    //
+    //     let data = this.loadRowData(value, this.getPrevUrl)
+    //     if (data[this.sortByColumnName] < this.minValue) {
+    //         this.minValue = data[this.sortByColumnName]
+    //     }
+    // }
+    //
+    // getNextRow(value) {
+    //
+    //     let data = this.loadRowData(value, this.getNextUrl)
+    //     if (data[this.sortByColumnName] > this.maxValue) {
+    //         this.maxValue = data[this.sortByColumnName]
+    //     }
+    //     return data
+    // }
+    //
+    //
+    // loadRowData(value, getUrl) {
+    //     var dataObject;
+    //
+    //     recive(data, status)
+    //     {
+    //         dataObject = data;
+    //         if (data[this.sortByColumnName] > this.maxValue) {
+    //             this.maxValue = data[this.sortByColumnName]
+    //         }
+    //     }
+    //
+    //     getObject(value)
+    //     {
+    //         $.get(getUrl + "?" + value + "&" + this.sortByColumnName, recive)
+    //     }
+    //     return dataObject;
+    // }
+    //
+
+    checkStatus(xhr) {
+        alert("Error " + xhr.status + "\nStatus: " + xhr.statusText);
     }
 
     compare(a, b) {
@@ -136,7 +170,7 @@ class DataSource {
             } else {
                 return -sortOrder
             }
-        } else return (a[col] - b[col])*sortOrder
+        } else return (a[col] - b[col]) * sortOrder
 
     }
 }

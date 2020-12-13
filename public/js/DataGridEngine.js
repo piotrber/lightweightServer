@@ -1,8 +1,8 @@
-class DataGridEngine{
+class DataGridEngine {
 
     grid;
 
-    constructor(grid){
+    constructor(grid) {
         this.grid = grid;
     }
 
@@ -25,8 +25,7 @@ class DataGridEngine{
         }
         if (data.searchInput != undefined) {
             data.searchInput.focus()
-        }
-        ;
+        };
     }
 
 
@@ -52,13 +51,24 @@ class DataGridEngine{
         ;
     }
 
+    gridNewPage() {
+        let data = this.parentNode.parentNode.parentNode.data
+        let action = this.data;
+        var count = data.owner.tableDefinition.displayRowCount;
+        if (action == "pgUp") {
+            count = - count;
+        }
+        this.sortFieldName = data.owner.sortFieldName;
+        let sortOrder = data.owner.sortOrder;
+        data.dataSource.getPage(count,this.sortFieldName,sortOrder);
+    }
+
 
     displayForm() {
         let parent = this;
         while (parent.tagName != "TABLE") {
             parent = parent.parentNode
-        }
-        ;
+        };
         parent.style.display = "none";
         let form = parent.parentNode.data.formDiv;
         form.style.display = "block";
@@ -75,8 +85,7 @@ class DataGridEngine{
                 if (!isFocusSet && (element.type != "hidden")) {
                     focused = element;
                     isFocusSet = true
-                }
-                ;
+                };
             }
             element = element.nextSibling;
         }
@@ -178,7 +187,7 @@ class DataGridEngine{
 
     scroll(event) {
 
-        let nav = this.parentNode.parentNode.data.navPanel.firstChild;
+        let nav = this.data;
         if (event.deltaY > 0) {
             nav.data.execute(nav, "next")
         } else {
@@ -190,11 +199,10 @@ class DataGridEngine{
     }
 
     kbdEvent(event) {
-        let nav = this.parentNode.parentNode.data.navPanel.firstChild;
+        let nav = this.parentNode.firstChild;
         if (event.code == "ArrowUp") {
             nav.data.execute(nav, "previous")
-        }
-        ;
+        };
         if (event.code == "ArrowDown") {
             nav.data.execute(nav, "next");
         }
@@ -212,11 +220,6 @@ class DataGridEngine{
             nav.nextSibling.focus()
         }
     }
-
-
-
-
-
 
 
 }

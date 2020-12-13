@@ -12,6 +12,7 @@ fun Routing.staticRouting() {
         static("/") {
             files("css")
             files("js")
+            file("favicon.ico")
             default("index.html")
 
         }

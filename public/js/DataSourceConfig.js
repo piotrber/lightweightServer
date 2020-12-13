@@ -1,25 +1,36 @@
 class DataSourceConfig {
 
     getAllUrl;
-    getNextUrl;
-    getPrevUrl;
+    getPageUrl;
     insertUrl;
     updateUrl;
     deleteUrl;
-    sortByColumnName;
+    rowCount;
 
 
-
-    constructor(tableName, rootUrl, getAllUrl, updateUrl, getNextPgUrl, getPrevPgUrl, insertUrl,  deleteUrl, sortByColumnName) {
+    constructor(tableName, rowCount, rootUrl, getAllUrl, updateUrl, getPageUrl, insertUrl, deleteUrl) {
         this.tableName = tableName;
-        this.rootUrl= rootUrl;
-        this.getAllUrl = this.rootUrl+getAllUrl;
-        this.getNextUrl =  this.rootUrl+ getNextPgUrl;
-        this.getPrevUrl = this.rootUrl+getPrevPgUrl;
-        this.insertUrl = this.rootUrl+insertUrl;
-        this.updateUrl = this.rootUrl+updateUrl;
-        this.deleteUrl = this.rootUrl+deleteUrl;
-        this.sortByColumnName = sortByColumnName;
+        this.rowCount = rowCount;
+        this.rootUrl = rootUrl;
+        this.getAllUrl = this.rootUrl + getAllUrl;
+        this.getPageUrl = this.rootUrl + getPageUrl;
+        this.insertUrl = this.rootUrl + insertUrl;
+        this.updateUrl = this.rootUrl + updateUrl;
+        this.deleteUrl = this.rootUrl + deleteUrl;
+    }
+}
+
+class SelectParams {
+    count;
+    column;
+    value;
+    sortOrder;
+
+    constructor(count, column, value, sortorder) {
+        this.count = count;
+        this.column = column;
+        this.value = value;
+        this.sortOrder = sortorder;
     }
 }
 

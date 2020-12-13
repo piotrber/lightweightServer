@@ -56,7 +56,7 @@ var tableDefinition = {
 }
 
 function start() {
-    dataSourceConfig = new DataSourceConfig("personList", "http://localhost:8080/", "all", "updatePerson");
+    dataSourceConfig = new DataSourceConfig("personList", tableDefinition.displayRowCount,"http://localhost:8080/", "all", "updatePerson","page");
     grid = new DataGrid("dataGrid", tableDefinition);
     dataSource = new DataSource(dataSourceConfig, grid);
 }

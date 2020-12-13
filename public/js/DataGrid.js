@@ -140,7 +140,8 @@ class DataGrid {
                 }
             }
         }
-        bar.data = {"execute": this.dbNavExec};
+        bar.data = {"execute": this.engine.dbNavExec};
+        this.eTableBody.data = bar;
     }
 
 
@@ -150,8 +151,12 @@ class DataGrid {
         this.engine = new DataGridEngine(this);
 
 
-        this.navEvents = [{"action": "previous", "handler": this.engine.gridAddTopRow},
-            {"action": "next", "handler": this.engine.gridAddBottomRow}];
+        this.navEvents = [
+            {"action": "pgDn", "handler": this.engine.gridNewPage},
+            {"action": "previous", "handler": this.engine.gridAddTopRow},
+            {"action": "next", "handler": this.engine.gridAddBottomRow},
+            {"action": "pgUp", "handler": this.engine.gridNewPage}
+        ];
 
 
 

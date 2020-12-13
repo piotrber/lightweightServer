@@ -7,17 +7,15 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.jetbrains.exposed.sql.SortOrder
 import pl.pjpsoft.data.*
 import pl.pjpsoft.model.Person
-import pl.pjpsoft.utils.ifNull
 
 fun Routing.routingApi() {
     getPersonData()
     getAllPersonData()
     savePersonData()
+    getPagePersonData()
 }
-
 
 fun Routing.getPersonData() {
 
@@ -46,23 +44,26 @@ fun Routing.getAllPersonData() {
     }
 }
 
-
 fun Routing.getPagePersonData() {
 
-    get("/page") {
+    post("/page") {
 
-        val selectParameters = SelectParameters(
-            call.request.queryParameters["count"].ifNull("0").toInt(),
-            call.request.queryParameters["column"].ifNull( ""),
-            call.request.queryParameters["value"].ifNull(""),
-            call.request.queryParameters["sortorder"].ifNull("0").toInt() as SortOrder,
-        )
+        val selectParameters = withContext(Dispatchers.IO) {
+            call.receive<SelectParameters>()
+        }
 
         val personList = personDataPage(selectParameters);
 
-        call.respond(
-            mapOf("personList" to personList)
-        )
+        if (personList.isEmpty()) {
+
+            call.respond(HttpStatusCode.NoContent)
+
+        } else {
+
+            call.respond(
+                mapOf("personList" to personList)
+            )
+        }
     }
 }
 
