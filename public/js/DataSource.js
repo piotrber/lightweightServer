@@ -25,32 +25,118 @@ class DataSource {
         this.updateUrl = dataSourceConfig.updateUrl;
         this.tableName = dataSourceConfig.tableName;
         this.getPageUrl = dataSourceConfig.getPageUrl;
-        this.loadAll();
+        this.sortFieldName = this.grid.sortFieldName;
+        this.sortOrder = this.grid.sortOrder;
+
+        this.loadStartData();
+    }
+
+
+    prepareSelectParams() {
+
+        var value;
+
+        if ((this.sortOrder == 1) && (this.rowCount > 0)
+            || ((this.sortOrder == -1) && (this.rowCount < 0))) {
+            value = this.maxValue
+        } else {
+            value = this.minValue
+        }
+        var sortOrderStr;
+        if (this.sortOrder = 1) {
+            sortOrderStr = "ASC"
+        } else {
+            sortOrderStr = "DESC"
+        }
+        let params = new SelectParams(this.rowCount, this.sortFieldName, value, sortOrderStr)
+        return JSON.stringify(params);
     }
 
 
     start(data) {
         this.tableData = data[this.tableName];
-        this.reload()
+        this.minValue = this.tableData[0][this.sortFieldName];
+        this.maxValue = this.tableData[this.tableData.length - 1][this.sortFieldName];
+        this.grid.build()
     }
 
+
     reload() {
+
         this.sortFieldName = this.grid.sortFieldName;
         this.sortOrder = this.grid.sortOrder;
         this.tableData.sort(this.compare);
         this.minValue = this.tableData[0][this.sortFieldName];
         this.maxValue = this.tableData[this.tableData.length - 1][this.sortFieldName];
         this.grid.build();
-
     }
 
     loadAll() {
         $.when(
             $.ajax({
-                    url: this.getAllUrl,
-                    context: this
+                url: this.getAllUrl,
+                context: this
+            })).then(this.start);
+    }
+
+    loadStartData() {
+
+        this.sortFieldName = this.grid.sortFieldName;
+        this.sortOrder = this.grid.sortOrder;
+        this.minValue = "";
+        this.maxValue = "";
+        this.rowCount = 2 * this.rowCount;
+        let params = this.prepareSelectParams()
+        this.rowCount = this.rowCount / 2;
+        $.when(
+            $.ajax({
+                url: this.getPageUrl,
+                type: "POST",
+                contentType: "application/json",
+                context: this,
+                data: params,
+                error: this.checkStatus
+            })
+        ).then(this.start);
+
+    }
+
+    loadPage(data, status, xhr) {
+
+
+        if (status = "statusok") {
+
+            let buffor = data[this.tableName];
+            let n = buffor.length;
+            if (n > 0) {
+                if (this.sortOrder = 1) {
+
+                    this.tableData = this.tableData.slice(n);
+                    this.tableData = this.tableData.concat(buffor);
+                } else {
+
+                    this.tableData.length = this.tableData.length - n;
+                    this.tableData = buffor.concat(this.tableData);
                 }
-            )).then(this.start);
+            }
+        }
+    }
+
+    getPage(count,sortFieldName,sortOrder) {
+
+        this.rowCount = count;
+        this.sortFieldName = sortFieldName;
+        this.sortorder = sortOrder;
+
+        $.ajax({
+            url: this.getPageUrl,
+            type: "POST",
+            context: this,
+            contentType: "application/json",
+            data: this.prepareSelectParams,
+            error: this.checkStatus,
+            success: this.loadPage
+        });
     }
 
     updateRowData(rowData) {
@@ -75,41 +161,6 @@ class DataSource {
         } else {
             return null;
         }
-    }
-
-    loadPage(data,status,xhr) {
-
-        this.tableData = data;
-
-
-    }
-
-
-    getPage() {
-
-        var value;
-
-        if ((this.sortOrder == 1) && (this.rowCount > 0)
-            || ((this.sortOrder == -1) && (this.rowCount < 0))) {
-            value = this.maxValue
-        } else {
-            value = this.minValue
-        }
-        var sortOrderStr;
-        if (this.sortOrder=1) { sortOrderStr="ASC"} else {sortOrderStr = "DESC"}
-        let selectParams = new SelectParams(this.rowCount, this.sortFieldName,value, sortOrderStr)
-
-        let data = JSON.stringify(selectParams);
-        $.ajax({
-            url: this.getPageUrl,
-            type: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(selectParams),
-            error: this.checkStatus,
-            success:this.loadPage
-        });
-
-
     }
 
 

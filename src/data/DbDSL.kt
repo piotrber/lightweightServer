@@ -23,6 +23,7 @@ data class SelectParameters(val count: Int, val column: String, val value: Strin
 data class QueryData(val column: Column<out Comparable<Any>>, val condition: Op<Boolean>)
 
 object PersonData : IntIdTable() {
+
     val fname = varchar("fname", 50)
     val lname = varchar("lname", 50)
 }
@@ -35,23 +36,19 @@ fun PersonData.whereBuilder(params: SelectParameters): QueryData {
         else -> PersonData.id
     }
 
-    val condition = arrayOf(
-        Op.build { column greater params.value },
+    val where = if ((params.count > 0 && params.sortOrder == SortOrder.ASC)
+        || (params.count > 0 && params.sortOrder == SortOrder.DESC)
+    ) {
+        Op.build { column greater params.value }
+    } else {
         Op.build { column less params.value }
-    );
-
-    val where = when {
-        params.count > 0 && params.sortOrder == SortOrder.ASC -> condition[0]
-        params.count < 0 && params.sortOrder == SortOrder.ASC -> condition[1]
-        params.count > 0 && params.sortOrder == SortOrder.DESC -> condition[0]
-        else -> condition[1]
     }
-return QueryData(column as Column<out Comparable<Any>>,where)
+
+    return QueryData(column as Column<out Comparable<Any>>, where)
 }
 
 fun PersonData.mapResultRowToPerson(it: ResultRow): Person =
     Person(id = it[PersonData.id].value, fname = it[PersonData.fname], lname = it[PersonData.lname])
-
 
 fun getSinglePerson(personId: Int): Person {
 
@@ -138,7 +135,6 @@ fun personDataPage(param: SelectParameters): List<Person> {
 
     return personList
 }
-
 
 fun execRawSql(sql: String) {
 

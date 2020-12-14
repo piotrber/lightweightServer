@@ -51,6 +51,7 @@ class DataGridEngine {
         ;
     }
 
+
     gridNewPage() {
         let data = this.parentNode.parentNode.parentNode.data
         let action = this.data;
