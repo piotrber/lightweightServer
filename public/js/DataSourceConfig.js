@@ -6,11 +6,13 @@ class DataSourceConfig {
     updateUrl;
     deleteUrl;
     rowCount;
+    cacheSize;
 
 
-    constructor(tableName, rowCount, rootUrl, getAllUrl, updateUrl, getPageUrl, insertUrl, deleteUrl) {
+    constructor(tableName, rowCount, cacheSize, rootUrl, getAllUrl, updateUrl, getPageUrl, insertUrl, deleteUrl) {
         this.tableName = tableName;
         this.rowCount = rowCount;
+        this.cacheSize = cacheSize;
         this.rootUrl = rootUrl;
         this.getAllUrl = this.rootUrl + getAllUrl;
         this.getPageUrl = this.rootUrl + getPageUrl;

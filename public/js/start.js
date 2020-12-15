@@ -4,6 +4,7 @@ var tableDefinition = {
     "headerClass": "w3-theme",
     "editable":"true",
     "displayRowCount": 10,
+    "cacheSize":20,
     "rowClass": "w3-hover-red",
     "sortOrderClassName":"w3-large",
     "columns": [
@@ -45,10 +46,10 @@ var tableDefinition = {
         "buttonClass": "w3-bar-item w3-button w3-hover-red",
         "buttons": [
             {"action": "first", "label": "|<"},
-            {"action": "pgDn", "label": "<<"},
+            {"action": "pgUp", "label": "<<"},
             {"action": "previous", "label": "<"},
             {"action": "next", "label": ">"},
-            {"action": "pgUp", "label": ">>"},
+            {"action": "pgDn", "label": ">>"},
             {"action": "insert", "label": "+"}
             ] // all are optional
     },
@@ -56,7 +57,7 @@ var tableDefinition = {
 }
 
 function start() {
-    dataSourceConfig = new DataSourceConfig("personList", tableDefinition.displayRowCount,"http://localhost:8080/", "all", "updatePerson","page");
+    dataSourceConfig = new DataSourceConfig("personList", tableDefinition.displayRowCount,tableDefinition.cacheSize,"http://localhost:8080/", "all", "updatePerson","page");
     grid = new DataGrid("dataGrid", tableDefinition);
     dataSource = new DataSource(dataSourceConfig, grid);
 }

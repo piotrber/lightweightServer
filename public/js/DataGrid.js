@@ -5,13 +5,15 @@ class DataGridConfig {
     formDiv;
     navPanel;
     searchInput;
+    engine;
 
-    constructor(owner, tableDiv, formDiv, navPanel, searchInput) {
+    constructor(owner, tableDiv, formDiv, navPanel, searchInput, engine) {
         this.owner = owner;
         this.formDiv = formDiv;
         this.tableDiv = tableDiv;
         this.navPanel = navPanel;
         this.searchInput = searchInput;
+        this.engine = engine;
     }
 }
 
@@ -153,8 +155,8 @@ class DataGrid {
 
         this.navEvents = [
             {"action": "pgDn", "handler": this.engine.gridNewPage},
-            {"action": "previous", "handler": this.engine.gridAddTopRow},
-            {"action": "next", "handler": this.engine.gridAddBottomRow},
+            {"action": "previous", "handler": this.engine.scrollUp},
+            {"action": "next", "handler": this.engine.scrollDn},
             {"action": "pgUp", "handler": this.engine.gridNewPage}
         ];
 
@@ -204,7 +206,7 @@ class DataGrid {
             this.eSearchInput.addEventListener("keydown", this.engine.kbdEvent)
         }
 
-        this.eContainer.data = new DataGridConfig(this, this.eTable, this.eForm, this.navPanel, this.eSearchInput);
+        this.eContainer.data = new DataGridConfig(this, this.eTable, this.eForm, this.navPanel, this.eSearchInput, this.engine);
     }
 
     build() {

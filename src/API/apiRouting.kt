@@ -2,6 +2,7 @@ package pl.pjpsoft.API
 
 import io.ktor.application.*
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -56,7 +57,7 @@ fun Routing.getPagePersonData() {
 
         if (personList.isEmpty()) {
 
-            call.respond(HttpStatusCode.NoContent)
+            call.respond(HttpStatusCodeContent(HttpStatusCode.NoContent))
 
         } else {
 
