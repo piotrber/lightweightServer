@@ -6,6 +6,8 @@ class DataGridConfig {
     navPanel;
     searchInput;
     engine;
+    firstRow;
+    lastRow;
 
     constructor(owner, tableDiv, formDiv, navPanel, searchInput, engine) {
         this.owner = owner;
@@ -39,7 +41,7 @@ class DataGrid {
         var i;
         for (i = 0; i < header.length; i++) {
 
-            let cell = document.createElement("th")
+            let cell = document.createElement("th");
             this.eTableHeader.appendChild(cell);
             cell.className = header[i].cellClass;
             cell.innerHTML = header[i].label;
@@ -47,18 +49,18 @@ class DataGrid {
             let sort = header[i].sortOrder;
             if (sort != "0") {
 
-                cell.className = cell.className + " " + tableDefinition.sortOrderClassName
+                cell.className = cell.className + " " + tableDefinition.sortOrderClassName;
                 if (sort == 1) {
-                    cell.innerHTML = cell.innerHTML + " +"
+                    cell.innerHTML = cell.innerHTML + " +";
                 } else {
-                    cell.innerHTML = "- " + element.innerHTML
+                    cell.innerHTML = "- " + element.innerHTML;
                 }
                 this.sortFieldName = header[i].fieldName;
                 this.sortOrder = header[i].sortOrder;
 
             }
-            cell.data = {"colNo": i, "fieldName": header[i].fieldName, "sortOrder": sort, "owner": this.eContainer}
-            cell.addEventListener("click", this.engine.changeSortOrder)
+            cell.data = {"colNo": i, "fieldName": header[i].fieldName, "sortOrder": sort, "owner": this.eContainer};
+            cell.addEventListener("click", this.engine.changeSortOrder);
 
         }
     }
@@ -77,7 +79,7 @@ class DataGrid {
             input.type = header[i].inputType;
             input.className = header[i].inputClass;
             if (header[i].inputType != "hidden") {
-                let label = document.createElement("label")
+                let label = document.createElement("label");
                 label.innerHTML = header[i].label;
                 this.eForm.appendChild(label);
             }
@@ -117,8 +119,9 @@ class DataGrid {
             td.innerHTML = rowData[fields[i].fieldName];
             td.className = fields[i].fieldClass;
             td.addEventListener("click", this.engine.displayForm);
-            tr.appendChild(td)
+            tr.appendChild(td);
         }
+        return tr;
     }
 
     createDbNavigator() {
@@ -147,23 +150,20 @@ class DataGrid {
     }
 
 
-
-
     constructor(name, tableDefinition) {
         this.engine = new DataGridEngine(this);
 
 
         this.navEvents = [
-            {"action": "pgDn", "handler": this.engine.gridNewPage},
+            {"action": "pgUp", "handler": this.engine.gridNewPage},
             {"action": "previous", "handler": this.engine.scrollUp},
             {"action": "next", "handler": this.engine.scrollDn},
-            {"action": "pgUp", "handler": this.engine.gridNewPage}
+            {"action": "pgDn", "handler": this.engine.gridNewPage}
         ];
 
 
-
         this.tableDefinition = tableDefinition;
-        this.eContainer = document.getElementById(this.tableDefinition.id)
+        this.eContainer = document.getElementById(this.tableDefinition.id);
         this.className = this.tableDefinition.className;
         this.rowCount = tableDefinition.displayRowCount;
         this.name = name;
@@ -173,12 +173,12 @@ class DataGrid {
         this.eContainer.appendChild(this.eTable);
 
         this.eTableHeader = document.createElement("tr");
-        this.eTable.appendChild(this.eTableHeader)
+        this.eTable.appendChild(this.eTableHeader);
         this.createDataGridHeader();
 
         this.eTableBody = document.createElement("tbody");
         this.eTable.appendChild(this.eTableBody);
-        this.eTableBody.addEventListener("wheel", this.engine.scroll)
+        this.eTableBody.addEventListener("wheel", this.engine.scroll);
 
 
         this.eForm = document.createElement("div");
@@ -186,7 +186,7 @@ class DataGrid {
         this.eContainer.appendChild(this.eForm);
 
         if (this.tableDefinition.form != undefined) {
-            this.createEditForm()
+            this.createEditForm();
         }
         ;
         this.navPanel = document.createElement("div");
@@ -194,16 +194,16 @@ class DataGrid {
         this.eContainer.appendChild(this.navPanel);
 
         if (this.tableDefinition.navigator != undefined) {
-            this.createDbNavigator()
+            this.createDbNavigator();
         }
         if (this.tableDefinition.searchInput != undefined) {
 
             this.eSearchInput = document.createElement("input");
-            this.eSearchInput.type = "search"
+            this.eSearchInput.type = "search";
             this.eSearchInput.className = this.tableDefinition.searchInput.className;
             this.eSearchInput.style = this.tableDefinition.searchInput.style;
             this.navPanel.appendChild(this.eSearchInput);
-            this.eSearchInput.addEventListener("keydown", this.engine.kbdEvent)
+            this.eSearchInput.addEventListener("keydown", this.engine.kbdEvent);
         }
 
         this.eContainer.data = new DataGridConfig(this, this.eTable, this.eForm, this.navPanel, this.eSearchInput, this.engine);
@@ -211,15 +211,25 @@ class DataGrid {
 
     build() {
         var i;
+        let tr;
         for (i = 0; i < this.rowCount; i++) {
+
             let rowData = this.dataSource.getRowData(i);
-            this.createDataGridRow(i, rowData);
+            tr = this.createDataGridRow(i, rowData);
+            if (i == 0) {
+                this.firstRow = tr;
+            } else {
+                this.lastRow = tr;
+            }
         }
         this.eContainer.data.dataSource = this.dataSource;
         this.eContainer.data.lastTop = 0;
+        this.eContainer.data.firstRow = this.firstRow;
+        this.eContainer.data.lastRow = this.lastRow;
         if (this.eContainer.data.searchInput != undefined) {
-            this.eContainer.data.searchInput.focus()
-        };
+            this.eContainer.data.searchInput.focus();
+        }
+        ;
 
     }
 

@@ -10,21 +10,17 @@ class DataGridEngine {
 
     gridAddTopRow(data) {
 
-        let table = data.owner.eTable;
-        let input = data.owner.eSearchInput;
-
-        let element = table.firstChild;
-        while (element.tagName != "TBODY") {
-            element = element.nextSibling;
-        }
-
-        let first = element.firstChild;  // first row
+        let grid = data.owner;
+        let first = grid.firstRow;  // first row
+        let tbody = first.parentNode;
+        let input = tbody.data.lastChild;
         let rowNumber = first.data.rowNumber - 1;
         if (rowNumber >= 0) {
             let rowData = data.dataSource.getRowData(rowNumber);
-            data.dataSource.grid.createDataGridRow(rowNumber, rowData);
-            element.insertBefore(element.lastChild, element.firstChild);
-            element.lastChild.remove();
+            grid.firstRow = data.dataSource.grid.createDataGridRow(rowNumber, rowData);
+            tbody.insertBefore(tbody.lastChild, tbody.firstChild);
+            tbody.lastChild.remove();
+            grid.lastRow = tbody.lastChild;
         }
         if (input != undefined) {
             input.focus();
@@ -35,19 +31,18 @@ class DataGridEngine {
 
     gridAddBottomRow(data) {
 
-        let table = data.owner.eTable;
-        let input = data.owner.eSearchInput;
-        let element = table.firstChild;
-        while (element.tagName != "TBODY") {
-            element = element.nextSibling;
-        }
-
-        let last = element.lastChild;  // last row
+        let grid = data.owner;
+        let last = grid.lastRow;  // last row
+        let tbody = last.parentNode;
+        let input = tbody.data.lastChild;
         let rowNumber = last.data.rowNumber + 1;
-        let rowData = data.dataSource.getRowData(rowNumber);
-        if (rowData != null) {
-            data.dataSource.grid.createDataGridRow(rowNumber, rowData);
-            element.firstChild.remove();
+        if (rowNumber < data.dataSource.cacheSize) {
+            let rowData = data.dataSource.getRowData(rowNumber);
+            if (rowData != null) {
+                grid.lastRow = data.dataSource.grid.createDataGridRow(rowNumber, rowData);
+                grid.firstRow.remove();
+                grid.firstRow = tbody.firstChild;
+            }
         }
         if (input != undefined) {
             input.focus();
@@ -56,12 +51,12 @@ class DataGridEngine {
     }
 
 
-    scrollUp() {
+    scrollDn() {
         let data = this.parentNode.parentNode.parentNode.data;
         data.engine.gridAddBottomRow(data);
     }
 
-    scrollDn() {
+    scrollUp() {
 
         let data = this.parentNode.parentNode.parentNode.data;
         data.engine.gridAddTopRow(data);
@@ -81,16 +76,24 @@ class DataGridEngine {
     }
 
     scrollN(n) {
-
         let data = this.grid.eContainer.data;
-        var i;
-        for (i = 1; i < Math.abs(n); i++) {
-            if (n > 0) {
-                this.gridAddBottomRow(data);
-            } else {
-                this.gridAddTopRow(data);
-            }
-        }
+        // var i;
+        // let row = data.firstRow;
+        // while (row != undefined) {
+        //     row.data.rowNumber = row.data.rowNumber - n;
+        //     row = row.nextSibling;
+        // }
+        // for (i = 0; i < Math.abs(n); i++) {
+        //     if (n > 0) {
+        //         this.gridAddBottomRow(data);
+        //     } else {
+        //         this.gridAddTopRow(data);
+        //     }
+        // }
+        //
+        data.engine.clearTable();
+        data.owner.build();
+
     }
 
     displayForm() {

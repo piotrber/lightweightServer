@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import pl.pjpsoft.model.Person
 import pl.pjpsoft.model.PersonList
+import java.lang.Math.abs
 
 object DbConnection {
 
@@ -122,11 +123,26 @@ fun personDataPage(param: SelectParameters): List<Person> {
     val queryData = PersonData.whereBuilder(param)
     val column = queryData.column
     val condition = queryData.condition
+    var reverse = false;
+    val sortOrder = if (param.count > 0) {
+        param.sortOrder
+    } else {
+        if (param.sortOrder == SortOrder.ASC) {
+            reverse = true;
+            SortOrder.DESC;
+        } else {
+            SortOrder.ASC
+        }
+    };
 
     transaction {
 
-        val personData =
-            PersonData.selectAll().andWhere { condition }.orderBy(column, param.sortOrder).limit(param.count).toList()
+        var personData =
+            PersonData.selectAll().andWhere { condition }.orderBy(column, sortOrder).limit(abs(param.count))
+                .toList()
+        if (reverse) {
+            personData = personData.asReversed()
+        }
         personData.forEach {
             val person = PersonData.mapResultRowToPerson(it)
             personList.add(person)

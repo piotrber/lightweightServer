@@ -12,7 +12,6 @@ class DataSource {
     minValue;
     maxValue;
     cacheSize;
-
     tableData;
 
 
@@ -33,14 +32,14 @@ class DataSource {
         this.loadStartData();
     }
 
-    setBorders(){
+    setExtremas(){
         this.minValue = this.tableData[0][this.sortFieldName];
         this.maxValue = this.tableData[this.tableData.length - 1][this.sortFieldName];
     }
 
     start(data) {
         this.tableData = data[this.tableName];
-        this.setBorders()
+        this.setExtremas()
         this.grid.build()
     }
 
@@ -50,7 +49,7 @@ class DataSource {
         this.sortFieldName = this.grid.sortFieldName;
         this.sortOrder = this.grid.sortOrder;
         this.tableData.sort(this.compare);
-        this.setBorders();
+        this.setExtremas();
         this.grid.build();
     }
 
@@ -126,7 +125,7 @@ class DataSource {
                     this.tableData.length = this.tableData.length - n;
                 }
             }
-            this.setBorders();
+            this.setExtremas();
             n = n*this.sortOrder;
             this.grid.engine.scrollN(n);
 
@@ -163,10 +162,6 @@ class DataSource {
     }
 
     getRowData(i) {
-
-        if (i > this.maxIndex) {
-            this.maxIndex = i
-        }
 
         if (i < this.tableData.length) {
             return this.tableData[i];
