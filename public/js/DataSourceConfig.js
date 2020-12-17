@@ -23,12 +23,14 @@ class DataSourceConfig {
 }
 
 class SelectParams {
+    direction;
     count;
     column;
     value;
     sortOrder;
 
-    constructor(count, column, value, sortorder) {
+    constructor(direction, count, column, value, sortorder) {
+        this.direction = direction;
         this.count = count;
         this.column = column;
         this.value = value;

@@ -5,9 +5,12 @@ package pl.pjpsoft.data
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
+import pl.pjpsoft.engine.QueryParameters
+import pl.pjpsoft.engine.Reverse
+import pl.pjpsoft.engine.SelectParameters
+import pl.pjpsoft.engine.querySetup
 import pl.pjpsoft.model.Person
 import pl.pjpsoft.model.PersonList
-import java.lang.Math.abs
 
 object DbConnection {
 
@@ -19,17 +22,13 @@ object DbConnection {
 
 val db = DbConnection.db
 
-data class SelectParameters(val count: Int, val column: String, val value: String, val sortOrder: SortOrder);
-
-data class QueryData(val column: Column<out Comparable<Any>>, val condition: Op<Boolean>)
-
 object PersonData : IntIdTable() {
 
     val fname = varchar("fname", 50)
     val lname = varchar("lname", 50)
 }
 
-fun PersonData.whereBuilder(params: SelectParameters): QueryData {
+fun PersonData.paramsBuilder(params: QueryParameters): SelectParameters {
 
     val column = when (params.column) {
         "lname" -> PersonData.lname
@@ -37,15 +36,7 @@ fun PersonData.whereBuilder(params: SelectParameters): QueryData {
         else -> PersonData.id
     }
 
-    val where = if ((params.count > 0 && params.sortOrder == SortOrder.ASC)
-        || (params.count > 0 && params.sortOrder == SortOrder.DESC)
-    ) {
-        Op.build { column greater params.value }
-    } else {
-        Op.build { column less params.value }
-    }
-
-    return QueryData(column as Column<out Comparable<Any>>, where)
+    return querySetup(params, column as Column<out Comparable<Any>>);
 }
 
 fun PersonData.mapResultRowToPerson(it: ResultRow): Person =
@@ -117,28 +108,17 @@ fun personDataList(): List<Person> {
     return personList
 }
 
-fun personDataPage(param: SelectParameters): List<Person> {
+fun personDataPage(param: QueryParameters): List<Person> {
 
     val personList = mutableListOf<Person>()
-    val queryData = PersonData.whereBuilder(param)
-    val column = queryData.column
-    val condition = queryData.condition
-    var reverse = false;
-    val sortOrder = if (param.count > 0) {
-        param.sortOrder
-    } else {
-        if (param.sortOrder == SortOrder.ASC) {
-            reverse = true;
-            SortOrder.DESC;
-        } else {
-            SortOrder.ASC
-        }
-    };
+    val selectParams = PersonData.paramsBuilder(param)
+    var reverse = selectParams.stright == Reverse.REVERSE;
 
     transaction {
 
         var personData =
-            PersonData.selectAll().andWhere { condition }.orderBy(column, sortOrder).limit(abs(param.count))
+            PersonData.selectAll().andWhere { selectParams.condition }
+                .orderBy(selectParams.column, selectParams.sortOrder).limit(selectParams.limit)
                 .toList()
         if (reverse) {
             personData = personData.asReversed()

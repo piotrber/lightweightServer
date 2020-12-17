@@ -8,7 +8,11 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import pl.pjpsoft.data.*
+import pl.pjpsoft.data.getSinglePerson
+import pl.pjpsoft.data.personDataList
+import pl.pjpsoft.data.personDataPage
+import pl.pjpsoft.data.updatePerson
+import pl.pjpsoft.engine.QueryParameters
 import pl.pjpsoft.model.Person
 
 fun Routing.routingApi() {
@@ -49,11 +53,11 @@ fun Routing.getPagePersonData() {
 
     post("/page") {
 
-        val selectParameters = withContext(Dispatchers.IO) {
-            call.receive<SelectParameters>()
+        val queryParameters = withContext(Dispatchers.IO) {
+            call.receive<QueryParameters>()
         }
 
-        val personList = personDataPage(selectParameters);
+        val personList = personDataPage(queryParameters);
 
         if (personList.isEmpty()) {
 

@@ -28,8 +28,6 @@ class DataGrid {
     eForm;
     eContainer;
     tableDefinition;
-    sortFieldName;
-    sortOrder;
     eSearchInput;
     navEvents;
     engine;
@@ -55,9 +53,6 @@ class DataGrid {
                 } else {
                     cell.innerHTML = "- " + element.innerHTML;
                 }
-                this.sortFieldName = header[i].fieldName;
-                this.sortOrder = header[i].sortOrder;
-
             }
             cell.data = {"colNo": i, "fieldName": header[i].fieldName, "sortOrder": sort, "owner": this.eContainer};
             cell.addEventListener("click", this.engine.changeSortOrder);
@@ -233,7 +228,17 @@ class DataGrid {
 
     }
 
+    getSortData() {
+        var i;
+        let tr = this.tableDefinition.columns;
+        for (i = 0; i < tr.length; i++) {
+            if (tr[i].sortOrder != 0) {
+                this.dataSource.sortOrder = tr[i].sortOrder;
+                this.dataSource.sortFieldName = tr[i].fieldName;
+            }
+        }
 
+    }
 }
 
 

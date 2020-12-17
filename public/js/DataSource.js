@@ -13,7 +13,7 @@ class DataSource {
     maxValue;
     cacheSize;
     tableData;
-
+    direction;
 
     constructor(dataSourceConfig, grid) {
 
@@ -25,29 +25,30 @@ class DataSource {
         this.updateUrl = dataSourceConfig.updateUrl;
         this.tableName = dataSourceConfig.tableName;
         this.getPageUrl = dataSourceConfig.getPageUrl;
-        this.sortFieldName = this.grid.sortFieldName;
-        this.sortOrder = this.grid.sortOrder;
-        this.cacheSize=dataSourceConfig.cacheSize;
+        this.cacheSize = dataSourceConfig.cacheSize;
+        this.grid.getSortData();
 
         this.loadStartData();
     }
 
-    setExtremas(){
+    setExtremas() {
         this.minValue = this.tableData[0][this.sortFieldName];
         this.maxValue = this.tableData[this.tableData.length - 1][this.sortFieldName];
     }
 
     start(data) {
         this.tableData = data[this.tableName];
-        this.setExtremas()
-        this.grid.build()
+        var i;
+        for (i = 0; i < this.tableData.length; i++) {
+            this.tableData[i].owner = this;
+        }
+        this.setExtremas();
+        this.grid.build();
     }
 
 
     reload() {
 
-        this.sortFieldName = this.grid.sortFieldName;
-        this.sortOrder = this.grid.sortOrder;
         this.tableData.sort(this.compare);
         this.setExtremas();
         this.grid.build();
@@ -62,23 +63,23 @@ class DataSource {
     }
 
 
-    prepareSelectParams() {
+    prepareSelectParams(direction, count, sortFieldName, sortOrder) {
 
         var value;
 
-        if ((this.sortOrder == 1) && (this.rowCount > 0)
-            || ((this.sortOrder == -1) && (this.rowCount < 0))) {
-            value = this.maxValue
+        if ((sortOrder == 1) && (direction == "DOWN")
+            || ((sortOrder == -1) && (direction == "UP"))) {
+            value = this.maxValue;
         } else {
-            value = this.minValue
+            value = this.minValue;
         }
         var sortOrderStr;
         if (this.sortOrder = 1) {
-            sortOrderStr = "ASC"
+            sortOrderStr = "ASC";
         } else {
-            sortOrderStr = "DESC"
+            sortOrderStr = "DESC";
         }
-        let params = new SelectParams(this.rowCount, this.sortFieldName, value, sortOrderStr)
+        let params = new SelectParams(direction, count, sortFieldName, value, sortOrderStr);
         return JSON.stringify(params);
     }
 
@@ -86,12 +87,11 @@ class DataSource {
     loadStartData() {
 
         let count = this.rowCount;
-        this.sortFieldName = this.grid.sortFieldName;
-        this.sortOrder = this.grid.sortOrder;
         this.minValue = "";
         this.maxValue = "";
         this.rowCount = this.cacheSize;
-        let params = this.prepareSelectParams()
+        this.direction = "DOWN";
+        let params = this.prepareSelectParams(this.direction, this.rowCount, this.sortFieldName, this.sortOrder);
         this.rowCount = count;
         $.when(
             $.ajax({
@@ -114,8 +114,12 @@ class DataSource {
 
             let buffor = data[this.tableName];
             n = buffor.length;
+            var i;
+            for (i = 0; i < n; i++) {
+                buffor[i].owner = this;
+            }
             if (n > 0) {
-                if (this.rowCount>0) {
+                if (this.direction == "DOWN") {
 
                     this.tableData = this.tableData.slice(n);
                     this.tableData = this.tableData.concat(buffor);
@@ -126,18 +130,19 @@ class DataSource {
                 }
             }
             this.setExtremas();
-            n = n*this.sortOrder;
+            n = n * this.sortOrder;
             this.grid.engine.scrollN(n);
 
         }
     }
 
-    getPage(count,sortFieldName,sortOrder) {
+    getPage(direction, count, sortFieldName, sortOrder) {
 
         this.rowCount = count;
         this.sortFieldName = sortFieldName;
-        this.sortorder = sortOrder;
-        let params = this.prepareSelectParams();
+        this.sortOrder = sortOrder;
+        this.direction = direction;
+        let params = this.prepareSelectParams(direction, count, sortFieldName, sortOrder);
 
         $.ajax({
             url: this.getPageUrl,
@@ -171,64 +176,22 @@ class DataSource {
     }
 
 
-    //
-    // getRow(id) {
-    //     return this.loadRowData(id, this.getUrl)
-    // }
-    //
-    // getPrevRow(value) {
-    //
-    //     let data = this.loadRowData(value, this.getPrevUrl)
-    //     if (data[this.sortByColumnName] < this.minValue) {
-    //         this.minValue = data[this.sortByColumnName]
-    //     }
-    // }
-    //
-    // getNextRow(value) {
-    //
-    //     let data = this.loadRowData(value, this.getNextUrl)
-    //     if (data[this.sortByColumnName] > this.maxValue) {
-    //         this.maxValue = data[this.sortByColumnName]
-    //     }
-    //     return data
-    // }
-    //
-    //
-    // loadRowData(value, getUrl) {
-    //     var dataObject;
-    //
-    //     recive(data, status)
-    //     {
-    //         dataObject = data;
-    //         if (data[this.sortByColumnName] > this.maxValue) {
-    //             this.maxValue = data[this.sortByColumnName]
-    //         }
-    //     }
-    //
-    //     getObject(value)
-    //     {
-    //         $.get(getUrl + "?" + value + "&" + this.sortByColumnName, recive)
-    //     }
-    //     return dataObject;
-    // }
-    //
-
     checkStatus(xhr) {
         alert("Error " + xhr.status + "\nStatus: " + xhr.statusText);
     }
 
     compare(a, b) {
 
-        let col = window.dataSource.sortFieldName;
-        let sortOrder = window.dataSource.sortOrder;
+        let col = a.owner.sortFieldName;
+        let sortOrder = a.owner.sortOrder;
 
         if (isNaN(a[col])) {
             if (a[col] > b[col]) {
-                return sortOrder
+                return sortOrder;
             } else {
-                return -sortOrder
+                return -sortOrder;
             }
-        } else return (a[col] - b[col]) * sortOrder
+        } else return (a[col] - b[col]) * sortOrder;
 
     }
 }

@@ -67,33 +67,19 @@ class DataGridEngine {
         let data = this.parentNode.parentNode.parentNode.data;
         let action = this.data;
         var count = data.owner.tableDefinition.displayRowCount;
+        var direction;
         if (action == "pgUp") {
-            count = -count;
-        }
+            direction = "UP"
+        } else direction = "DOWN"
         this.sortFieldName = data.owner.sortFieldName;
         let sortOrder = data.owner.sortOrder;
-        data.dataSource.getPage(count, this.sortFieldName, sortOrder);
+        data.dataSource.getPage(direction,count, this.sortFieldName, sortOrder);
     }
 
     scrollN(n) {
         let data = this.grid.eContainer.data;
-        // var i;
-        // let row = data.firstRow;
-        // while (row != undefined) {
-        //     row.data.rowNumber = row.data.rowNumber - n;
-        //     row = row.nextSibling;
-        // }
-        // for (i = 0; i < Math.abs(n); i++) {
-        //     if (n > 0) {
-        //         this.gridAddBottomRow(data);
-        //     } else {
-        //         this.gridAddTopRow(data);
-        //     }
-        // }
-        //
         data.engine.clearTable();
         data.owner.build();
-
     }
 
     displayForm() {
@@ -213,9 +199,8 @@ class DataGridEngine {
             element.innerHTML = "- " + element.innerHTML;
         }
         element.data.sortOrder = newSortOrder;
-        grid.sortFieldName = element.data.fieldName;
-        grid.sortOrder = newSortOrder;
-
+        grid.dataSource.sortFieldName = element.data.fieldName;
+        grid.dataSource.sortOrder = newSortOrder;
         grid.engine.reloadTable();
     }
 

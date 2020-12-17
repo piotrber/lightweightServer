@@ -1,12 +1,12 @@
 var tableDefinition = {
-    "id":"dgGrid",
-    "className":"w3-table-all w3-hoverable",
+    "id": "dgGrid",
+    "className": "w3-table-all w3-hoverable",
     "headerClass": "w3-theme",
-    "editable":"true",
+    "editable": "true",
     "displayRowCount": 10,
-    "cacheSize":20,
+    "cacheSize": 20,
     "rowClass": "w3-hover-red",
-    "sortOrderClassName":"w3-large",
+    "sortOrderClassName": "w3-large",
     "columns": [
         {
             "cellClass": "w3-right-align w3-border",
@@ -15,7 +15,7 @@ var tableDefinition = {
             "inputClass": "w3-input",
             "fieldName": "id",
             "fieldClass": "w3-right-align  w3-border",
-            "sortOrder":"0" // -1 desc +1 asc
+            "sortOrder": "0" // -1 desc +1 asc
         },
         {
             "cellClass": "w3-center  w3-border",
@@ -24,7 +24,7 @@ var tableDefinition = {
             "inputClass": "w3-input w3-margin",
             "fieldName": "fname",
             "fieldClass": "w3-center  w3-border",
-            "sortOrder":"0"
+            "sortOrder": "0"
         },
         {
             "cellClass": "w3-center w3-border",
@@ -33,7 +33,7 @@ var tableDefinition = {
             "inputClass": "w3-input w3-margin",
             "fieldName": "lname",
             "fieldClass": "w3-center  w3-border",
-            "sortOrder":"1"
+            "sortOrder": "1"
         }
     ],
     "form": {
@@ -51,13 +51,21 @@ var tableDefinition = {
             {"action": "next", "label": ">"},
             {"action": "pgDn", "label": ">>"},
             {"action": "insert", "label": "+"}
-            ] // all are optional
+        ] // all are optional
     },
-    "searchInput":{"className":"w3-input w3-margin","style":"width:30%"}
-}
+    "searchInput": {"className": "w3-input w3-margin", "style": "width:30%"}
+};
 
 function start() {
-    dataSourceConfig = new DataSourceConfig("personList", tableDefinition.displayRowCount,tableDefinition.cacheSize,"http://localhost:8080/", "all", "updatePerson","page");
+    dataSourceConfig = new DataSourceConfig(
+        "personList",
+        tableDefinition.displayRowCount,
+        tableDefinition.cacheSize,
+        "http://localhost:8080/",
+        "all",
+        "updatePerson",
+        "page"
+    );
     grid = new DataGrid("dataGrid", tableDefinition);
     dataSource = new DataSource(dataSourceConfig, grid);
 }
