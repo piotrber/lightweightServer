@@ -8,10 +8,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import pl.pjpsoft.data.getSinglePerson
-import pl.pjpsoft.data.personDataList
-import pl.pjpsoft.data.personDataPage
-import pl.pjpsoft.data.updatePerson
+import pl.pjpsoft.data.*
 import pl.pjpsoft.engine.QueryParameters
 import pl.pjpsoft.model.Person
 
@@ -20,6 +17,7 @@ fun Routing.routingApi() {
     getAllPersonData()
     savePersonData()
     getPagePersonData()
+    insertPersonData()
 }
 
 fun Routing.getPersonData() {
@@ -80,5 +78,19 @@ fun Routing.savePersonData() {
         }
         updatePerson(person)
         call.respond(HttpStatusCode.OK)
+    }
+}
+
+
+
+fun Routing.insertPersonData() {
+
+    post("/insertPerson") {
+        val person = withContext(Dispatchers.IO) {
+            call.receive<Person>()
+        }
+        insertPerson(person)
+        call.respond(
+            mapOf("person" to person))
     }
 }

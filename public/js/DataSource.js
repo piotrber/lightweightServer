@@ -4,6 +4,7 @@ class DataSource {
     dataSourceConfig;
     getAllUrl;
     getPageUrl;
+    insertUrl;
     updateUrl;
     tableName;
     rowCount;
@@ -25,13 +26,14 @@ class DataSource {
         this.updateUrl = dataSourceConfig.updateUrl;
         this.tableName = dataSourceConfig.tableName;
         this.getPageUrl = dataSourceConfig.getPageUrl;
+        this.insertUrl = dataSourceConfig.insertUrl;
         this.cacheSize = dataSourceConfig.cacheSize;
         this.grid.getSortData();
 
         this.loadStartData();
     }
 
-    setExtremas() {
+    setExtremes() {
         this.minValue = this.tableData[0][this.sortFieldName];
         this.maxValue = this.tableData[this.tableData.length - 1][this.sortFieldName];
     }
@@ -42,7 +44,7 @@ class DataSource {
         for (i = 0; i < this.tableData.length; i++) {
             this.tableData[i].owner = this;
         }
-        this.setExtremas();
+        this.setExtremes();
         this.grid.build();
     }
 
@@ -50,7 +52,7 @@ class DataSource {
     reload() {
 
         this.tableData.sort(this.compare);
-        this.setExtremas();
+        this.setExtremes();
         this.grid.build();
     }
 
@@ -63,12 +65,12 @@ class DataSource {
     }
 
 
-    prepareSelectParams(direction, count, sortFieldName, sortOrder) {
+    prepareSelectParams(direction, count) {
 
         var value;
 
-        if ((sortOrder == 1) && (direction == "DOWN")
-            || ((sortOrder == -1) && (direction == "UP"))) {
+        if ((this.sortOrder == 1) && (direction == "DOWN")
+            || ((this.sortOrder == -1) && (direction == "UP"))) {
             value = this.maxValue;
         } else {
             value = this.minValue;
@@ -79,7 +81,7 @@ class DataSource {
         } else {
             sortOrderStr = "DESC";
         }
-        let params = new SelectParams(direction, count, sortFieldName, value, sortOrderStr);
+        let params = new SelectParams(direction, count, this.sortFieldName, value, sortOrderStr);
         return JSON.stringify(params);
     }
 
@@ -129,20 +131,18 @@ class DataSource {
                     this.tableData.length = this.tableData.length - n;
                 }
             }
-            this.setExtremas();
+            this.setExtremes();
             n = n * this.sortOrder;
             this.grid.engine.scrollN(n);
 
         }
     }
 
-    getPage(direction, count, sortFieldName, sortOrder) {
+    getPage(direction, count) {
 
         this.rowCount = count;
-        this.sortFieldName = sortFieldName;
-        this.sortOrder = sortOrder;
         this.direction = direction;
-        let params = this.prepareSelectParams(direction, count, sortFieldName, sortOrder);
+        let params = this.prepareSelectParams(direction, count);
 
         $.ajax({
             url: this.getPageUrl,
@@ -173,6 +173,23 @@ class DataSource {
         } else {
             return null;
         }
+    }
+
+    loadNew(data){
+        return data
+    }
+
+    insertData(data){
+
+        $.ajax({
+            url: this.insertUrl,
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            error: this.checkStatus,
+            success: this.loadNew()
+        });
+
     }
 
 

@@ -64,7 +64,7 @@ fun updatePerson(person: Person) {
 
 }
 
-fun insertNewPerson(person: Person) {
+fun insertPerson(person: Person) {
 
     transaction {
 

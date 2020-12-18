@@ -1,6 +1,6 @@
 package pl.pjpsoft.engine
 
-import pl.pjpsoft.data.insertNewPerson
+import pl.pjpsoft.data.insertPerson
 import pl.pjpsoft.data.updatePerson
 import pl.pjpsoft.model.Person
 
@@ -10,7 +10,7 @@ fun newPersonData(data: MutableMap<String, String>): Person {
     val fname = data.get("fname").toString()
 
     var person = Person(0, fname, lname)
-    insertNewPerson(person)
+    insertPerson(person)
     return person
 }
 

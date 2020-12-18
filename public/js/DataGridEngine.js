@@ -73,7 +73,7 @@ class DataGridEngine {
         } else direction = "DOWN"
         this.sortFieldName = data.owner.sortFieldName;
         let sortOrder = data.owner.sortOrder;
-        data.dataSource.getPage(direction,count, this.sortFieldName, sortOrder);
+        data.dataSource.getPage(direction,count);
     }
 
     scrollN(n) {
@@ -86,14 +86,14 @@ class DataGridEngine {
         let parent = this;
         while (parent.tagName != "TABLE") {
             parent = parent.parentNode;
-        }
-        ;
+        };
         parent.style.display = "none";
         let form = parent.parentNode.data.formDiv;
         form.style.display = "block";
         let formData = this.parentNode.data;
         form.data = formData;
         let dataRow = formData.rowData;
+        delete dataRow.owner;
         var isFocusSet = false;
         var focused;
         var element = form.firstChild;
@@ -114,6 +114,9 @@ class DataGridEngine {
         navPanel.style.display = "none";
         focused.focus();
     }
+
+    displayNewForm(){}
+
 
     displayGrid() {
         let form = this.parentNode;

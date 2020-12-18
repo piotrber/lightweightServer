@@ -153,7 +153,8 @@ class DataGrid {
             {"action": "pgUp", "handler": this.engine.gridNewPage},
             {"action": "previous", "handler": this.engine.scrollUp},
             {"action": "next", "handler": this.engine.scrollDn},
-            {"action": "pgDn", "handler": this.engine.gridNewPage}
+            {"action": "pgDn", "handler": this.engine.gridNewPage},
+            {"action":"insert","handler": this.engine.displayNewForm}
         ];
 
 

@@ -64,7 +64,8 @@ function start() {
         "http://localhost:8080/",
         "all",
         "updatePerson",
-        "page"
+        "page",
+        "insertPerson"
     );
     grid = new DataGrid("dataGrid", tableDefinition);
     dataSource = new DataSource(dataSourceConfig, grid);
