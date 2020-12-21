@@ -8,6 +8,8 @@ class DataGridConfig {
     engine;
     firstRow;
     lastRow;
+    activeRow;
+    navEvents;
 
     constructor(owner, tableDiv, formDiv, navPanel, searchInput, engine) {
         this.owner = owner;
@@ -69,7 +71,6 @@ class DataGrid {
         let header = tableDefinition.columns;
         var i;
         for (i = 0; i < header.length; i++) {
-
             let input = document.createElement("input");
             input.type = header[i].inputType;
             input.className = header[i].inputClass;
@@ -107,14 +108,16 @@ class DataGrid {
         let tr = document.createElement("tr");
         tr.className = rowClass;
         tr.data = {"element": tr, "rowNumber": rowNumber, "rowData": rowData};
+        tr.tabIndex = 1000*rowNumber;
+        tr.addEventListener("keydown",this.engine.keybordEvent);
         this.eTableBody.appendChild(tr);
         var i;
         for (i = 0; i < fields.length; i++) {
             let td = document.createElement("td");
             td.innerHTML = rowData[fields[i].fieldName];
             td.className = fields[i].fieldClass;
-            td.addEventListener("click", this.engine.displayForm);
             tr.appendChild(td);
+            td.addEventListener("dblclick", this.engine.displayForm);
         }
         return tr;
     }
@@ -131,7 +134,7 @@ class DataGrid {
             let btn = document.createElement("button");
             btn.className = tableDefinition.navigator.buttonClass;
             btn.innerHTML = buttons[i].label;
-            btn.data = buttons[i].action;
+            btn.data = { "action":buttons[i].action, "owner":this.eContainer} ;
             bar.appendChild(btn);
             var j;
             for (j = 0; j < this.navEvents.length; j++) {
@@ -141,7 +144,7 @@ class DataGrid {
             }
         }
         bar.data = {"execute": this.engine.dbNavExec};
-        this.eTableBody.data = bar;
+        this.eTableBody.data = this.engine;
     }
 
 
@@ -150,11 +153,12 @@ class DataGrid {
 
 
         this.navEvents = [
-            {"action": "pgUp", "handler": this.engine.gridNewPage},
-            {"action": "previous", "handler": this.engine.scrollUp},
-            {"action": "next", "handler": this.engine.scrollDn},
-            {"action": "pgDn", "handler": this.engine.gridNewPage},
-            {"action":"insert","handler": this.engine.displayNewForm}
+            {"action": "PageUp", "handler": this.engine.gridNewPage},
+            {"action": "ArrowUp", "handler": this.engine.scrollUp},
+            {"action": "ArrowDown", "handler": this.engine.scrollDn},
+            {"action": "PageDown", "handler": this.engine.gridNewPage},
+            {"action":"Insert","handler": this.engine.displayNewForm},
+            {"action":"Delete","handler": this.engine.toDo}
         ];
 
 
@@ -241,5 +245,3 @@ class DataGrid {
 
     }
 }
-
-

@@ -45,12 +45,12 @@ var tableDefinition = {
         "className": "w3-bar w3-theme w3-left",
         "buttonClass": "w3-bar-item w3-button w3-hover-red",
         "buttons": [
-            {"action": "first", "label": "|<"},
-            {"action": "pgUp", "label": "<<"},
-            {"action": "previous", "label": "<"},
-            {"action": "next", "label": ">"},
-            {"action": "pgDn", "label": ">>"},
-            {"action": "insert", "label": "+"}
+            {"action": "PageUp", "label": "<<"},
+            {"action": "ArrowUp", "label": "<"},
+            {"action": "ArrowDown", "label": ">"},
+            {"action": "PageDown", "label": ">>"},
+            {"action": "Insert", "label": "+"},
+            {"action": "Delete", "label":"-"}
         ] // all are optional
     },
     "searchInput": {"className": "w3-input w3-margin", "style": "width:30%"}

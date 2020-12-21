@@ -133,9 +133,10 @@ class DataSource {
             }
             this.setExtremes();
             n = n * this.sortOrder;
-            this.grid.engine.scrollN(n);
-
+        } else {
+            n = 0;
         }
+        this.grid.engine.scrollN(n);
     }
 
     getPage(direction, count) {
@@ -175,11 +176,11 @@ class DataSource {
         }
     }
 
-    loadNew(data){
-        return data
+    loadNew(data) {
+        return data;
     }
 
-    insertData(data){
+    insertData(data) {
 
         $.ajax({
             url: this.insertUrl,

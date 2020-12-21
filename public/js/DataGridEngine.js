@@ -22,32 +22,24 @@ class DataGridEngine {
             tbody.lastChild.remove();
             grid.lastRow = tbody.lastChild;
         }
-        if (input != undefined) {
-            input.focus();
-        }
-        ;
-    }
+    };
 
 
-    gridAddBottomRow(data) {
+    gridAddBottomRow(engine) {
 
-        let grid = data.owner;
+        let grid = engine.grid;
         let last = grid.lastRow;  // last row
         let tbody = last.parentNode;
         let input = tbody.data.lastChild;
         let rowNumber = last.data.rowNumber + 1;
-        if (rowNumber < data.dataSource.cacheSize) {
+        if (rowNumber < grid.dataSource.cacheSize) {
             let rowData = data.dataSource.getRowData(rowNumber);
             if (rowData != null) {
-                grid.lastRow = data.dataSource.grid.createDataGridRow(rowNumber, rowData);
+                grid.lastRow = grid.createDataGridRow(rowNumber, rowData);
                 grid.firstRow.remove();
                 grid.firstRow = tbody.firstChild;
             }
         }
-        if (input != undefined) {
-            input.focus();
-        }
-        ;
     }
 
 
@@ -58,35 +50,38 @@ class DataGridEngine {
 
     scrollUp() {
 
-        let data = this.parentNode.parentNode.parentNode.data;
-        data.engine.gridAddTopRow(data);
+        let config = this.parentNode.parentNode.parentNode.data;
+        config.engine.gridAddTopRow(config);
     }
 
 
-    gridNewPage() {
-        let data = this.parentNode.parentNode.parentNode.data;
-        let action = this.data;
-        var count = data.owner.tableDefinition.displayRowCount;
+    gridNewPage(engine,action) {
+        var grid = engine.grid;
+        var count = grid.tableDefinition.displayRowCount;
         var direction;
-        if (action == "pgUp") {
-            direction = "UP"
-        } else direction = "DOWN"
-        this.sortFieldName = data.owner.sortFieldName;
-        let sortOrder = data.owner.sortOrder;
-        data.dataSource.getPage(direction,count);
+        if (action == "PageUp") {
+            direction = "UP";
+        } else direction = "DOWN";
+        this.sortFieldName = grid.sortFieldName;
+        let sortOrder = grid.sortOrder;
+        grid.dataSource.getPage(direction, count);
     }
 
     scrollN(n) {
-        let data = this.grid.eContainer.data;
-        data.engine.clearTable();
-        data.owner.build();
+        if (n > 0) {
+            let data = this.grid.eContainer.data;
+            data.engine.clearTable();
+            data.owner.build();
+        }
+
     }
 
     displayForm() {
         let parent = this;
         while (parent.tagName != "TABLE") {
             parent = parent.parentNode;
-        };
+        }
+        ;
         parent.style.display = "none";
         let form = parent.parentNode.data.formDiv;
         form.style.display = "block";
@@ -115,7 +110,8 @@ class DataGridEngine {
         focused.focus();
     }
 
-    displayNewForm(){}
+    displayNewForm() {
+    }
 
 
     displayGrid() {
@@ -135,25 +131,20 @@ class DataGridEngine {
             element = element.nextSibling;
         }
         form.parentNode.data.dataSource.updateRowData(dataRow);
-        let data = form.parentNode.data;
-        data.tableDiv.style.display = "table";
-        data.navPanel.style.display = "block";
-        if (data.searchInput != undefined) {
-            data.searchInput.focus();
-        }
-        ;
+        let config = form.parentNode.data;
+        config.tableDiv.style.display = "table";
+        config.navPanel.style.display = "block";
+        config.engine.setFocus(config.owner.eSearchInput);
     }
 
     cancelEdit() {
         let form = this.parentNode;
         form.style.display = "none";
         let data = form.parentNode.data;
+        form.data.rowData.owner = data.dataSource;
         data.tableDiv.style.display = "table";
         data.navPanel.style.display = "block";
-        if (data.searchInput != undefined) {
-            data.searchInput.focus();
-        }
-        ;
+        data.engine.setFocus(data.searchInput);
     }
 
 
@@ -171,10 +162,13 @@ class DataGridEngine {
         this.grid.dataSource.reload();
     }
 
-    //
-    // setFocus(data){
-    //     if (data.searchInput != undefined) {data.searchInput.focus()};
-    // }
+
+    setFocus(input) {
+        if (input != undefined) {
+            input.focus();
+        }
+        ;
+    }
 
     changeSortOrder() {
         let element = this;
@@ -220,22 +214,48 @@ class DataGridEngine {
         }
     }
 
+    navAction(action) {
+
+        let actions = this.grid.navEvents;
+        var engine = this;
+        actions.forEach(
+            function(it) {
+                if (it.action == action) {
+                    it.handler(engine,action);
+                }
+        });
+    }
+
+    keybordEvent(event){
+        let engine = this.parentNode.data;
+        engine.navAction(event.code)
+    }
+
+
     kbdEvent(event) {
         let nav = this.parentNode.firstChild;
         if (event.code == "ArrowUp") {
             nav.data.execute(nav, "previous");
         }
         ;
+        if (event.code == "PageUp") {
+            nav.data.execute(nav, "pgUp");
+        }
+        ;
         if (event.code == "ArrowDown") {
             nav.data.execute(nav, "next");
         }
+        if (event.code == "PageDown") {
+            nav.data.execute(nav, "pgDn");
+        }
+        ;
     }
 
     dbNavExec(nav, action) {
 
         let button = nav.firstChild;
 
-        while (button.data != action) {
+        while (button.data.action != action) {
             button = button.nextSibling;
         }
         button.click();
@@ -244,5 +264,8 @@ class DataGridEngine {
         }
     }
 
+    toDo() {
+        window.alert("TODO");
+    }
 
 }
