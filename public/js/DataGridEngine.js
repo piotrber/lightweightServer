@@ -8,9 +8,9 @@ class DataGridEngine {
     }
 
 
-    gridAddTopRow(data) {
+    gridAddTopRow(engine, action, tr) {
 
-        let grid = data.owner;
+        let grid = engine.grid;
         let first = grid.firstRow;  // first row
         let tbody = first.parentNode;
         let input = tbody.data.lastChild;
@@ -25,7 +25,7 @@ class DataGridEngine {
     };
 
 
-    gridAddBottomRow(engine) {
+    gridAddBottomRow(engine, action, tr) {
 
         let grid = engine.grid;
         let last = grid.lastRow;  // last row
@@ -33,7 +33,7 @@ class DataGridEngine {
         let input = tbody.data.lastChild;
         let rowNumber = last.data.rowNumber + 1;
         if (rowNumber < grid.dataSource.cacheSize) {
-            let rowData = data.dataSource.getRowData(rowNumber);
+            let rowData = grid.dataSource.getRowData(rowNumber);
             if (rowData != null) {
                 grid.lastRow = grid.createDataGridRow(rowNumber, rowData);
                 grid.firstRow.remove();
@@ -43,27 +43,22 @@ class DataGridEngine {
     }
 
 
-    scrollDn() {
-        let data = this.parentNode.parentNode.parentNode.data;
-        data.engine.gridAddBottomRow(data);
+    scrollDn(engine, action, tr) {
+        engine.gridAddBottomRow(engine, action, tr);
     }
 
-    scrollUp() {
-
-        let config = this.parentNode.parentNode.parentNode.data;
-        config.engine.gridAddTopRow(config);
+    scrollUp(engine, action, tr) {
+        engine.gridAddTopRow(engine, action, tr);
     }
 
 
-    gridNewPage(engine,action) {
+    gridNewPage(engine, action, tr) {
         var grid = engine.grid;
         var count = grid.tableDefinition.displayRowCount;
         var direction;
         if (action == "PageUp") {
             direction = "UP";
         } else direction = "DOWN";
-        this.sortFieldName = grid.sortFieldName;
-        let sortOrder = grid.sortOrder;
         grid.dataSource.getPage(direction, count);
     }
 
@@ -203,32 +198,28 @@ class DataGridEngine {
 
     scroll(event) {
 
-        let nav = this.data;
+        let engine = this.data;
         if (event.deltaY > 0) {
-            nav.data.execute(nav, "next");
+            engine.navAction(engine, "ArrowUp", this.firstChild);
         } else {
-            nav.data.execute(nav, "previous");
-        }
-        if (nav.nextSibling != undefined) {
-            nav.nextSibling.focus();
+            engine.navAction(engine, "ArrowDown", this.firstChild);
         }
     }
 
-    navAction(action) {
+    navAction(engine, action, tr) {
 
         let actions = this.grid.navEvents;
-        var engine = this;
         actions.forEach(
-            function(it) {
+            function (it) {
                 if (it.action == action) {
-                    it.handler(engine,action);
+                    it.handler(engine, action, tr);
                 }
-        });
+            });
     }
 
-    keybordEvent(event){
+    keybordEvent(event) {
         let engine = this.parentNode.data;
-        engine.navAction(event.code)
+        engine.navAction(engine, event.code, this);
     }
 
 
