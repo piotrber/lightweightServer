@@ -1,11 +1,11 @@
 var tableDefinition = {
     "id": "dgGrid",
-    "className": "w3-table-all w3-hoverable",
+    "className": "w3-table-all",
     "headerClass": "w3-theme",
     "editable": "true",
     "displayRowCount": 10,
     "cacheSize": 20,
-    "rowClass": "w3-hover-red",
+    "rowClass": "",
     "sortOrderClassName": "w3-large",
     "columns": [
         {

@@ -16,12 +16,13 @@ class DataGridEngine {
         let input = tbody.data.lastChild;
         let rowNumber = first.data.rowNumber - 1;
         if (rowNumber >= 0) {
-            let rowData = data.dataSource.getRowData(rowNumber);
-            grid.firstRow = data.dataSource.grid.createDataGridRow(rowNumber, rowData);
+            let rowData = grid.dataSource.getRowData(rowNumber);
+            grid.firstRow = grid.dataSource.grid.createDataGridRow(rowNumber, rowData);
             tbody.insertBefore(tbody.lastChild, tbody.firstChild);
             tbody.lastChild.remove();
             grid.lastRow = tbody.lastChild;
         }
+        tr.focus();
     };
 
 
@@ -40,14 +41,15 @@ class DataGridEngine {
                 grid.firstRow = tbody.firstChild;
             }
         }
+        tr.focus();
     }
 
 
-    scrollDn(engine, action, tr) {
+    scrollUp(engine, action, tr) {
         engine.gridAddBottomRow(engine, action, tr);
     }
 
-    scrollUp(engine, action, tr) {
+    scrollDn(engine, action, tr) {
         engine.gridAddTopRow(engine, action, tr);
     }
 
@@ -129,7 +131,6 @@ class DataGridEngine {
         let config = form.parentNode.data;
         config.tableDiv.style.display = "table";
         config.navPanel.style.display = "block";
-        config.engine.setFocus(config.owner.eSearchInput);
     }
 
     cancelEdit() {
@@ -139,7 +140,6 @@ class DataGridEngine {
         form.data.rowData.owner = data.dataSource;
         data.tableDiv.style.display = "table";
         data.navPanel.style.display = "block";
-        data.engine.setFocus(data.searchInput);
     }
 
 
@@ -155,14 +155,6 @@ class DataGridEngine {
     reloadTable() {
         this.clearTable();
         this.grid.dataSource.reload();
-    }
-
-
-    setFocus(input) {
-        if (input != undefined) {
-            input.focus();
-        }
-        ;
     }
 
     changeSortOrder() {
@@ -223,36 +215,11 @@ class DataGridEngine {
     }
 
 
-    kbdEvent(event) {
-        let nav = this.parentNode.firstChild;
-        if (event.code == "ArrowUp") {
-            nav.data.execute(nav, "previous");
-        }
-        ;
-        if (event.code == "PageUp") {
-            nav.data.execute(nav, "pgUp");
-        }
-        ;
-        if (event.code == "ArrowDown") {
-            nav.data.execute(nav, "next");
-        }
-        if (event.code == "PageDown") {
-            nav.data.execute(nav, "pgDn");
-        }
-        ;
-    }
-
-    dbNavExec(nav, action) {
-
-        let button = nav.firstChild;
-
-        while (button.data.action != action) {
-            button = button.nextSibling;
-        }
-        button.click();
-        if (nav.nextSibling != undefined) {
-            nav.nextSibling.focus();
-        }
+    dbNavClick() {
+        let action = this.data.action;
+        let engine = this.data.owner.engine;
+        let tr = this.data.owner.focusedRow;
+        engine.navAction(engine,action,tr);
     }
 
     toDo() {

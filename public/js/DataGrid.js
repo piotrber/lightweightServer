@@ -33,6 +33,7 @@ class DataGrid {
     eSearchInput;
     navEvents;
     engine;
+    focusedRow;
 
     createDataGridHeader() {
 
@@ -107,9 +108,11 @@ class DataGrid {
 
         let tr = document.createElement("tr");
         tr.className = rowClass;
-        tr.data = {"element": tr, "rowNumber": rowNumber, "rowData": rowData};
-        tr.tabIndex = 1000*rowNumber;
-        tr.addEventListener("keydown",this.engine.keybordEvent);
+        tr.data = {"element": tr, "rowNumber": rowNumber, "rowData": rowData, "owner": this};
+        tr.tabIndex = 1000 * rowNumber;
+        tr.addEventListener("keydown", this.engine.keybordEvent);
+        tr.addEventListener("mouseover", this.setFocus);
+        tr.addEventListener("focusin",this.onFocus);
         this.eTableBody.appendChild(tr);
         var i;
         for (i = 0; i < fields.length; i++) {
@@ -134,16 +137,10 @@ class DataGrid {
             let btn = document.createElement("button");
             btn.className = tableDefinition.navigator.buttonClass;
             btn.innerHTML = buttons[i].label;
-            btn.data = { "action":buttons[i].action, "owner":this.eContainer} ;
+            btn.data = {"action": buttons[i].action, "owner": this};
             bar.appendChild(btn);
-            var j;
-            for (j = 0; j < this.navEvents.length; j++) {
-                if (this.navEvents[j].action == buttons[i].action) {
-                    btn.addEventListener("click", this.navEvents[j].handler);
-                }
-            }
+            btn.addEventListener("click", this.engine.dbNavClick);
         }
-        bar.data = {"execute": this.engine.dbNavExec};
         this.eTableBody.data = this.engine;
     }
 
@@ -157,8 +154,8 @@ class DataGrid {
             {"action": "ArrowUp", "handler": this.engine.scrollUp},
             {"action": "ArrowDown", "handler": this.engine.scrollDn},
             {"action": "PageDown", "handler": this.engine.gridNewPage},
-            {"action":"Insert","handler": this.engine.displayNewForm},
-            {"action":"Delete","handler": this.engine.toDo}
+            {"action": "Insert", "handler": this.engine.displayNewForm},
+            {"action": "Delete", "handler": this.engine.toDo}
         ];
 
 
@@ -226,11 +223,7 @@ class DataGrid {
         this.eContainer.data.lastTop = 0;
         this.eContainer.data.firstRow = this.firstRow;
         this.eContainer.data.lastRow = this.lastRow;
-        if (this.eContainer.data.searchInput != undefined) {
-            this.eContainer.data.searchInput.focus();
-        }
-        ;
-
+        this.firstRow.focus();
     }
 
     getSortData() {
@@ -244,4 +237,13 @@ class DataGrid {
         }
 
     }
+
+    setFocus() {
+        this.focus();
+    }
+
+    onFocus() {
+        this.data.owner.focusedRow = this;
+    }
+
 }
